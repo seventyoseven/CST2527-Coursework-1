@@ -22,8 +22,8 @@ Built using **HTML, CSS, and JavaScript**, the app interacts with a **securely c
 -  **Server-Side Integration** – Data fetched and stored dynamically in the application’s database.  
 -  **Doctor Module** – Manage medical notes, treatments, and prescriptions.  
 -  **Patient Booking System** – Book appointments with chosen doctors.  
-- 🛡️ **Cybersecurity Case Study** – Includes a detailed description of **server hardening after a cyber-attack**.  
-- ⚖️ **GDPR Compliance** – Focused on privacy, data protection, and user consent.
+-  **Cybersecurity Case Study** – Includes a detailed description of **server hardening after a cyber-attack**.  
+-  **GDPR Compliance** – Focused on privacy, data protection, and user consent.
 
 ---
 
