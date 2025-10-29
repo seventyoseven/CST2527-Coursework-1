@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delete Patient</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+
+<!-- NAV BAR (jeanette) -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../index.html" class="logo-text">MediCare</a>
+
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="../patient/login.html">Book Appointment</a></li>
+    <li><a href="#about">About Us</a></li>
+    <li><a href="../contact.html">Contact Us</a></li>
+
+	<!-- LOGIN DROPDOWN -->
+	<li class="nav-item dropdown">
+	  <a href="#" class="login-btn">Login <i class="fa fa-caret-down"></i></a>
+	  <div class="dropdown-menu">
+		<a href="../patient/login.html">Patient Portal</a>
+		<a href="../doctor/login.html">Doctor Portal</a>
+	  </div>
+	</li>
+  </ul>
+</nav>
+
+<!-- delete patient-->
+  <div class="container">
+    <h1>Delete Patient</h1>
+    <p class="subtitle">Enter the name of the patient you wish to remove.</p>
+
+    <form class="patient-form">
+      <div class="form-row">
+        <label>Patient Name</label>
+        <input type="text" placeholder="Enter patient name" />
+      </div>
+      <button type="button" class="btn delete-btn">Delete Patient</button>
+    </form>
+
+    <a href="portal.html" class="back-link">← Back to Main Menu</a>
+  </div>
+  
+    <!-- FOOTER -->
+<footer style="margin-top:50px;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+		<br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+			<img src="../images/insta.png" alt="Instagram" width="70" height="70">
+			<img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+			<img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+			<img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+			<img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+
+</body>
+</html>
