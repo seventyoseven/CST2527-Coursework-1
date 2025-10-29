@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MediCare | Home Page</title>
+	<link rel="stylesheet" href="styles.css">
+	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="logo-text">MediCare</a>
+
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="patient/login.html">Book Appointment</a></li>
+    <li><a href="#about">About Us</a></li>
+    <li><a href="contact.html">Contact Us</a></li>
+
+	<!-- LOGIN DROPDOWN -->
+	<li class="nav-item dropdown">
+	  <a href="#" class="login-btn">Login <i class="fa fa-caret-down"></i></a>
+	  <div class="dropdown-menu">
+		<a href="patient/login.html">Patient Portal</a>
+		<a href="doctor/login.html">Doctor Portal</a>
+	  </div>
+	</li>
+  </ul>
+ </nav>
+ 
+<div class="hero-section">
+  <div class="hero-image"></div>
+  <div class="hero-content">
+    <h1>Welcome to Mubasat Hospital</h1>
+    <p>
+      Providing compassionate care and advanced medical services to every patient, every time. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae mauris et sem convallis porta in sed tellus. Praesent quis massa ut velit tempor laoreet. Nunc ut mollis neque, in fringilla orci. Phasellus congue ligula vel commodo aliquam. Quisque massa augue, feugiat sit amet dignissim ut, condimentum quis mauris.
+    </p>
+    <a href="#about" class="hero-btn">Learn More About Us</a>
+  </div>
+</div>
+
+<section class="about-section" id="about">
+  <div class="about-content">
+    <h2>About Us</h2>
+    <p>
+      We are dedicated to delivering world-class healthcare services with modern facilities and highly skilled professionals. 
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae mauris et sem convallis porta in sed tellus. 
+      Praesent quis massa ut velit tempor laoreet. Nunc ut mollis neque, in fringilla orci. 
+      Phasellus congue ligula vel commodo aliquam. Quisque massa augue, feugiat sit amet dignissim ut, condimentum quis mauris.
+    </p>
+  </div>
+</section>
+
+<section class="why-choose-us">
+  <h2>Why Choose Us?</h2>
+  <div class="index-cards">
+    <div class="card">
+      <h3>Secure & GDPR Compliant</h3>
+      <p>We protect your data with advanced encryption and strict GDPR compliance.</p>
+    </div>
+    <div class="card">
+      <h3>Easy Appointment Booking</h3>
+      <p>Book appointments with your preferred doctors quickly and efficiently.</p>
+    </div>
+    <div class="card">
+      <h3>Digital Medical Records</h3>
+      <p>Access your reports, prescriptions, and treatment plans anytime, anywhere.</p>
+    </div>
+  </div>
+</section>
+
+<section class="services-section">
+  <h2>Our Services</h2>
+  <div class="service-icons">
+    <div class="service-item">
+      <i class="fa fa-user-md"></i>
+      <p>Clinical Psychology</p>
+    </div>
+    <div class="service-item">
+      <i class="fa fa-tooth"></i>
+      <p>Dentistry</p>
+    </div>
+    <div class="service-item">
+      <i class="fa fa-stethoscope"></i>
+      <p>Dermatology / Cosmetology</p>
+    </div>
+    <div class="service-item">
+      <i class="fa fa-apple"></i>
+      <p>Dietetics</p>
+    </div>
+    <div class="service-item">
+      <i class="fa fa-ear-listen"></i>
+      <p>ENT</p>
+    </div>
+  </div>
+  
+  <!-- placeholder for admin button cuz js for now -->
+  <div class="admin-access">
+    <a href="admin/portal.html" class="admin-btn">
+      <i class="fa fa-lock"></i> Admin Portal
+    </a>
+  </div>
+</section>
+
+
+  <!-- FOOTER -->
+<footer style="margin-top:50px;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+		<br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+			<img src="images/insta.png" alt="Instagram" width="70" height="70">
+			<img src="images/facebook.png" alt="Facebook" width="70" height="70">
+			<img src="images/youtube.png" alt="Youtube" width="70" height="70">
+			<img src="images/twitter.png" alt="Twitter" width="70" height="70">
+			<img src="images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+
+    </body>
+</html>

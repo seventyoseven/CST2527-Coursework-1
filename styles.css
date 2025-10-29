@@ -1,0 +1,1368 @@
+/* ============================================
+   COLOURS (pls use this btw guys ik some of the colours arent standardised we'll go in later and change it)
+   ============================================ */
+:root {
+  --darkblue: #141B41;
+  --blue: #306BAC;
+  --teal: #69D1C5;
+  --lightgray: #f5f7fb;
+  --midgray: #dcdcdc;
+  --textdark: #333;
+  --textlight: #666;
+  /* add more if u need, or if u see any to add. easier to access instead of hex */
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--lightgray);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+.navbar {
+  width: 100%;
+  background-color: #fff;
+  color: var(--textdark);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-text {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.location-select {
+  border: none;
+  font-size: 14px;
+  color: #444;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+}
+
+.nav-right {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-right a {
+  text-decoration: none;
+  color: var(--textdark);
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-right a:hover {
+  color: var(--blue);
+}
+
+.login-btn {
+  background-color: var(--blue);
+  color: #fff !important;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.login-btn:hover {
+  background-color: #24578e;
+}
+
+/* Navbar Dropdown */
+.nav-item.dropdown {
+  position: relative;
+}
+
+.nav-item .dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 110%;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  overflow: hidden;
+  min-width: 180px;
+  z-index: 9999;
+}
+
+.nav-item .dropdown-menu a {
+  display: block;
+  padding: 10px 14px;
+  color: var(--textdark);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.nav-item .dropdown-menu a:hover {
+  background-color: var(--blue);
+  color: white;
+}
+
+.nav-item.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* ============================================
+   PATIENT PORTAL LAYOUT
+   ============================================ */
+.patient-portal {
+  background-color: #f5f5f5;
+  font-family: 'Open Sans', sans-serif;
+  line-height: 1.6;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-portal .container {
+  max-width: 1000px;
+  margin: 20px auto 60px auto;
+  padding: 0 40px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  text-align: left;
+  width: 100%;
+  flex: 1;
+}
+
+/* ============================================
+   PATIENT PORTAL TYPOGRAPHY
+   ============================================ */
+.patient-portal h1 {
+  color: #0066cc;
+  font-size: 2rem;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  text-align: left;
+  font-weight: 700;
+}
+
+.patient-portal h2 {
+  color: #0066cc;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  margin-top: 30px;
+  font-weight: 700;
+}
+
+.patient-portal h3 {
+  color: #0066cc;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.patient-portal p {
+  color: #333333;
+  font-family: 'Open Sans', sans-serif;
+  margin-bottom: 10px;
+}
+
+/* ============================================
+   PATIENT PORTAL SECTIONS & CARDS
+   ============================================ */
+.patient-portal .section {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 30px 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-top: 10px;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.patient-portal .section-description {
+  color: #666666;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.patient-portal .content-section {
+  background-color: #ffffff;
+  border: 1px solid #d8e0e8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 25px 30px;
+  margin-bottom: 30px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.patient-portal .content-section:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.patient-portal .content-section h2 {
+  color: #2c3e50;
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #4ca3dd;
+  padding-bottom: 6px;
+}
+
+.patient-portal .content-section p.no-data {
+  color: #777;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/* ============================================
+   PATIENT PORTAL NAV
+   ============================================ */
+.patient-portal .back-link {
+  display: inline-block;
+  margin-bottom: 5px;
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.patient-portal .back-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   PATIENT PORTAL DASHBOARD
+   ============================================ */
+.patient-portal .portal-intro {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.patient-portal .portal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.patient-portal .portal-card {
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  padding: 2rem;
+  transition: all 0.25s ease;
+  color: #2c3e50;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.patient-portal .portal-card i {
+  font-size: 3rem;
+  color: #007acc;
+  margin-bottom: 1rem;
+}
+
+.patient-portal .portal-card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  color: #007acc;
+  margin-top: 0;
+}
+
+.patient-portal .portal-card p {
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.patient-portal .portal-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  background: #f9fcff;
+}
+
+/* ============================================
+   PATIENT PORTAL FORMS
+   ============================================ */
+.patient-portal .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.patient-portal .form-group label {
+  color: #0066cc;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.patient-portal .form-group input,
+.patient-portal .form-group select,
+.patient-portal .form-group textarea {
+  background-color: #ffffff;
+  color: #333333;
+  border: 1px solid #e0e0e0;
+  padding: 12px;
+  border-radius: 4px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.patient-portal .form-group input:focus,
+.patient-portal .form-group select:focus,
+.patient-portal .form-group textarea:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.patient-portal .form-group input[readonly] {
+  background-color: #f9f9f9;
+  color: #666;
+}
+
+.patient-portal .form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.patient-portal .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* ============================================
+   PATIENT PORTAL BUTTONS
+   ============================================ */
+.patient-portal .btn-primary {
+  background-color: #0066cc;
+  color: #ffffff;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  width: auto;
+}
+
+.patient-portal .btn-primary:hover {
+  background-color: #0052a3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+.patient-portal .btn-primary:active {
+  transform: translateY(0);
+}
+
+.patient-portal .btn-secondary {
+  display: inline-block;
+  background-color: #e6f0ff;
+  color: #0066cc;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+  margin-top: 10px;
+}
+
+.patient-portal .btn-secondary:hover {
+  background-color: #d2e5ff;
+}
+
+/* ============================================
+   PATIENT PORTAL LISTS (Appointments, Prescriptions, Records, etc...)
+   ============================================ */
+.patient-portal .appointments-list,
+.patient-portal .prescriptions-list,
+.patient-portal .records-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.patient-portal .appointment-card,
+.patient-portal .prescription-card,
+.patient-portal .record-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #0066cc;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-portal .appointment-card:hover,
+.patient-portal .prescription-card:hover,
+.patient-portal .record-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.patient-portal .appointment-card h3,
+.patient-portal .prescription-card h3,
+.patient-portal .record-card h3 {
+  margin-bottom: 10px;
+  color: #0066cc;
+  font-size: 1.1rem;
+}
+
+.patient-portal .appointment-card p,
+.patient-portal .prescription-card p,
+.patient-portal .record-card p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.patient-portal .prescription-card p strong,
+.patient-portal .record-card p strong {
+  color: #0066cc;
+  font-weight: 600;
+}
+
+/* ============================================
+   DOCTOR PORTAL LAYOUT
+   ============================================ */
+.doctor-portal {
+  background-color: white;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.doctor-portal .container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  text-align: left;
+  flex: 1;
+}
+
+/* ============================================
+   DOCTOR PORTAL TYPOGRAPHY
+   ============================================ */
+.doctor-portal h1 {
+  color: #69d1c5;
+  font-family: "TT Chocolates", sans-serif;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  text-align: left;
+}
+
+.doctor-portal h2 {
+  color: #69d1c5;
+  font-family: "TT Chocolates", sans-serif;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+/* ============================================
+   DOCTOR PORTAL THINGYS
+   ============================================ */
+.subcontainer {
+  background-color: #f7f9f9;
+  border-radius: 4px;
+  border: 1px solid #316bac;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.doctordropdown {
+  border: 1px solid #316bac;
+  padding: 1rem;
+  width: 100%;
+  max-width: 800px;
+  margin: 1.5rem auto 3rem;
+  position: relative;
+  border-radius: 4px;
+}
+
+.doctordropdown input {
+  width: 100%;
+  padding: 10px;
+  font-size: 15.4px;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.doctordropdown-text {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: white;
+  display: none;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.doctordropdown-text div {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.doctordropdown-text div:hover {
+  background-color: #316bac;
+  color: white;
+}
+
+.patient-name-display {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.patient-details {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  max-width: 1150px;
+  font-size: 17px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.doctor-info-display {
+  font-size: 17px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.doctorButton {
+  align-items: center;
+  background-color: #316bac;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 15.4px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.doctorButton:hover {
+  background-color: #141b41;
+}
+
+/* ============================================
+   ADMIN+DOCTOR PORTAL CONTAINERS
+   ============================================ */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 40px auto;
+  width: 90%;
+  max-width: 700px;
+  background: #fff;
+  border: 1px solid var(--midgray);
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  padding: 40px;
+  text-align: center;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 0;
+}
+
+h1 {
+  color: var(--teal);
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.subtitle {
+  color: var(--textlight);
+  font-size: 15px;
+  margin-bottom: 30px;
+}
+
+/* ============================================
+   HOME PAGE (HERO + SECTIONS)
+   ============================================ */
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  overflow: hidden;
+  min-height: 450px;
+}
+
+.hero-image {
+  flex: 1;
+  background: url("images/hero-doctor.jpg") no-repeat center center/cover;
+  min-height: 450px;
+}
+
+.hero-content {
+  flex: 1;
+  padding: 60px;
+  text-align: center;
+  background-color: #f7f9fc;
+}
+
+.hero-content h1 {
+  color: #44bfb2;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.hero-content p {
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 25px;
+}
+
+.hero-btn {
+  background-color: #316bac;
+  padding: 12px 24px;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.hero-btn:hover {
+  background-color: #244c85;
+}
+
+.about-section {
+  background-color: #fff;
+  padding: 60px 80px;
+  text-align: center;
+}
+
+.about-section h2 {
+  color: #44bfb2;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.about-section p {
+  color: #555;
+  line-height: 1.7;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.why-choose-us {
+  background-color: #f7f9fc;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.why-choose-us h2 {
+  color: #44bfb2;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+
+.services-section {
+  background-color: #44bfb2;
+  color: white;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.services-section h2 {
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+
+.service-icons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+.service-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120px;
+}
+
+.service-item i {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.service-item p {
+  font-size: 0.95rem;
+}
+
+/* ============================================
+   CARDS (Home Page & Admin Portal)
+   ============================================ */
+.index-container {
+  text-align: center;
+  max-width: 1200px;
+  width: 90%;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.index-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.index-cards .card {
+  background-color: white;
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  width: 280px;
+  padding: 25px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.index-cards .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.index-cards .card h3 {
+  color: #316bac;
+  margin-bottom: 10px;
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.card {
+  background-color: #f9fbff;
+  border: 1px solid #dce3eb;
+  border-radius: 10px;
+  width: 280px;
+  padding: 20px;
+  text-decoration: none;
+  color: #333;
+  transition: 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--teal);
+  box-shadow: 0 4px 12px rgba(38, 166, 154, 0.15);
+}
+
+.card.delete:hover {
+  border-color: #e53935;
+  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.15);
+}
+
+/* ============================================
+   LOGIN PAGE
+   ============================================ */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 2rem 1rem;
+  margin-top: 2rem;
+}
+
+.login-box {
+  background-color: white;
+  padding: 3rem;
+  border-radius: 8px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-box h2 {
+  margin-bottom: 2rem;
+  text-align: center;
+  color: var(--blue);
+  font-size: 1.8rem;
+}
+
+.form-group.checkbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+}
+
+.form-group.checkbox input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+}
+
+.form-group.checkbox label {
+  margin: 0;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+.form-links {
+  margin-bottom: 1.5rem;
+  text-align: right;
+}
+
+.forgot-password {
+  color: var(--blue);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.register-link {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: var(--textlight);
+}
+
+.register-link a {
+  color: var(--blue);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   LOGIN PAGES
+   ============================================ */
+.floating-login-container {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 400px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.login-header {
+  background-color: #0066cc;
+  color: #ffffff;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.login-header h2 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.close-btn {
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+  color: #f1f1f1;
+  outline: none;
+}
+
+.login-form {
+  padding: 30px;
+}
+
+.login-form .form-group {
+  margin-bottom: 20px;
+}
+
+.login-form .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333333;
+  font-weight: 600;
+}
+
+.login-form .form-group input[type="email"],
+.login-form .form-group input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.login-form .form-group input:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.login-form .btn-primary {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================
+   FORMS (misc.)
+   ============================================ */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--textdark);
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="email"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 3px rgba(38, 166, 154, 0.4);
+}
+
+.form-row {
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 5px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: 0.2s;
+  background-color: #fff;
+}
+
+/* ============================================
+   BUTTONS (misc.)
+   ============================================ */
+.btn {
+  width: 100%;
+  background-color: var(--blue);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.3s;
+}
+
+.btn:hover {
+  background-color: #24578e;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0052a3;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.delete-btn {
+  background-color: #e53935;
+}
+
+.delete-btn:hover {
+  background-color: #c62828;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: var(--blue);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   ADMIN PORTAL
+   ============================================ */
+.two-column {
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
+}
+
+.two-column .column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-form {
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.patient-form input,
+.patient-form select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.patient-form .btn {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+footer {
+  background: var(--darkblue);
+  color: white;
+  padding: 3rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 2rem;
+  margin-top: auto;
+  width: 100%;
+}
+
+.footer-left {
+  text-align: center;
+}
+
+.footer-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.social-icons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.social-icons img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.copyright {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+/* ============================================
+   RESPONSIVE (width, bla bla bla...)
+   ============================================ */
+@media (max-width: 768px) {
+  .welcome {
+    text-align: right;
+  }
+
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .nav-right {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+
+  .patient-portal .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-portal h1 {
+    font-size: 2rem;
+  }
+
+  .patient-portal h2 {
+    font-size: 1.5rem;
+  }
+
+  .patient-portal .container {
+    padding: 20px 15px;
+  }
+
+  .patient-portal .section {
+    padding: 20px;
+  }
+
+  .patient-portal .portal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-details {
+    flex-direction: column;
+  }
+
+  .doctor-info-display {
+    flex-direction: column;
+  }
+
+  .card-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .two-column {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card {
+    width: 90%;
+  }
+
+  .container {
+    padding: 25px;
+  }
+
+  .floating-login-container {
+    width: 95%;
+  }
+
+  .hero-section {
+    flex-direction: column;
+  }
+
+  .hero-content {
+    padding: 40px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .patient-portal h1 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .patient-portal h2 {
+    font-size: 1.2rem;
+  }
+
+  .patient-portal .container {
+    padding: 15px 10px;
+  }
+
+  .patient-portal .section {
+    padding: 15px;
+    margin-bottom: 30px;
+  }
+
+  .patient-portal .appointment-card,
+  .patient-portal .prescription-card,
+  .patient-portal .record-card {
+    padding: 15px;
+  }
+
+  .patient-portal .form-group input,
+  .patient-portal .form-group select,
+  .patient-portal .form-group textarea {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .patient-portal .btn-primary {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .floating-login-container {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .login-header {
+    padding: 10px 15px;
+  }
+
+  .login-form {
+    padding: 20px;
+  }
+
+  /* this doesnt work but ive added it js for now its basically the image for jeanette but yeah...doesnt work...idk why.. */
+  .hero-image {
+    flex: 1;
+    min-height: 450px;
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-size: 2rem;
+    font-weight: bold;
+    font-family: sans-serif;
+    border-right: 8px solid #f7f9fc;
+    position: relative;
+  }
+
+  .hero-image::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(to right, rgba(221, 221, 221, 1) 60%, #f7f9fc 100%);
+    pointer-events: none;
+  }
+}
