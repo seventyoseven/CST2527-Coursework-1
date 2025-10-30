@@ -899,6 +899,16 @@ h1 {
   text-decoration: underline;
 }
 
+.login-error {
+    background: #ffe6e6;
+    border: 1px solid #ff8a8a;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    color: #b30000;
+    font-size: 0.9rem;
+}
+
 /* ============================================
    LOGIN PAGES
    ============================================ */
@@ -1366,3 +1376,4 @@ footer {
     pointer-events: none;
   }
 }
+
