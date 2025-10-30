@@ -1,7 +1,12 @@
 /**
  * Medicare HospitalDB Manager
- * Universal database for Patient, Doctor, and Admin portals
+ * Universal database for Patient, Doctor, Admin portals
  * Handles database creation, data loading from JSON, CRUD operations, and authentication
+ *
+ * NOTES:
+ * - JSON sources are loaded from the hosted URLs (same pattern as original).
+ * - Passwords are generated at load time (PlainPassword stored temporarily for testing).
+ * - This file preserves your original commenting style and function names.
  */
 
 class HospitalDB {
@@ -10,6 +15,19 @@ class HospitalDB {
         this.version = 1;
         this.db = null;
         this.encryptionKey = 'Medicare2025SecureKey!@#';
+    }
+
+    /**
+     * Wait until this.db is available (used by methods that may run before init() completes)
+     */
+    async waitForDB(timeoutMs = 5000) {
+        const start = Date.now();
+        while (!this.db) {
+            if (Date.now() - start > timeoutMs) {
+                throw new Error('Timed out waiting for DB to be ready');
+            }
+            await new Promise(r => setTimeout(r, 50));
+        }
     }
 
     /**
@@ -26,13 +44,14 @@ class HospitalDB {
 
             request.onsuccess = (event) => {
                 this.db = event.target.result;
-                window.db = this.db; 
+                // expose for legacy code expecting window.db
+                window.db = this.db;
                 console.log('HospitalDB opened successfully');
-                
+
                 if (window.onDBReady) {
                     window.onDBReady();
                 }
-                
+
                 resolve(this.db);
             };
 
@@ -40,9 +59,10 @@ class HospitalDB {
                 const db = event.target.result;
                 console.log('Upgrading HospitalDB...');
 
-                //patients
+                // patients
                 if (!db.objectStoreNames.contains('patients')) {
                     const patientStore = db.createObjectStore('patients', { keyPath: 'id', autoIncrement: true });
+                    // patient JSON likely uses "Email" property name, keep index as 'Email'
                     patientStore.createIndex('NHS', 'NHS', { unique: true });
                     patientStore.createIndex('Email', 'Email', { unique: true });
                     patientStore.createIndex('First', 'First', { unique: false });
@@ -50,31 +70,33 @@ class HospitalDB {
                     patientStore.createIndex('Password', 'Password', { unique: false });
                 }
 
-                //docs
+                // doctors
                 if (!db.objectStoreNames.contains('doctors')) {
                     const doctorStore = db.createObjectStore('doctors', { keyPath: 'id', autoIncrement: true });
+                    // doctor JSON uses "email" lowercase; index name chosen as 'Email' for consistency in lookups
                     doctorStore.createIndex('Email', 'email', { unique: true });
                     doctorStore.createIndex('first_name', 'first_name', { unique: false });
                     doctorStore.createIndex('last_name', 'last_name', { unique: false });
                     doctorStore.createIndex('Password', 'Password', { unique: false });
                 }
 
-                //admin
+                // admin
                 if (!db.objectStoreNames.contains('admin')) {
                     const adminStore = db.createObjectStore('admin', { keyPath: 'id', autoIncrement: true });
+                    // admin JSON uses "email" lowercase; index stored under 'Email' index name for uniform lookup
                     adminStore.createIndex('Email', 'email', { unique: true });
                     adminStore.createIndex('first_name', 'first_name', { unique: false });
                     adminStore.createIndex('last_name', 'last_name', { unique: false });
                     adminStore.createIndex('Password', 'Password', { unique: false });
                 }
 
-                //medicine
+                // medicines
                 if (!db.objectStoreNames.contains('medicines')) {
                     const medicineStore = db.createObjectStore('medicines', { keyPath: 'id', autoIncrement: true });
                     medicineStore.createIndex('Drug', 'Drug', { unique: false });
                 }
 
-                //appts
+                // appointments
                 if (!db.objectStoreNames.contains('appointments')) {
                     const appointmentStore = db.createObjectStore('appointments', { keyPath: 'id', autoIncrement: true });
                     appointmentStore.createIndex('Patient_ID', 'Patient_ID', { unique: false });
@@ -83,7 +105,7 @@ class HospitalDB {
                     appointmentStore.createIndex('Status', 'Status', { unique: false });
                 }
 
-                //prescrpitions
+                // treatments (prescriptions)
                 if (!db.objectStoreNames.contains('treatments')) {
                     const treatmentStore = db.createObjectStore('treatments', { keyPath: 'id', autoIncrement: true });
                     treatmentStore.createIndex('Patient_ID', 'Patient_ID', { unique: false });
@@ -92,7 +114,7 @@ class HospitalDB {
                     treatmentStore.createIndex('Status', 'Status', { unique: false });
                 }
 
-                // notes
+                // medical notes
                 if (!db.objectStoreNames.contains('medical_notes')) {
                     const notesStore = db.createObjectStore('medical_notes', { keyPath: 'id', autoIncrement: true });
                     notesStore.createIndex('Patient_ID', 'Patient_ID', { unique: false });
@@ -108,7 +130,7 @@ class HospitalDB {
      */
     encryptData(data) {
         if (typeof CryptoJS !== 'undefined') {
-            return CryptoJS.AES.encrypt(data, this.encryptionKey).toString();
+            return CryptoJS.AES.encrypt(String(data), this.encryptionKey).toString();
         }
         console.warn('CryptoJS not loaded, storing plain text');
         return data;
@@ -118,7 +140,7 @@ class HospitalDB {
      * Decrypt 
      */
     decryptData(encryptedData) {
-        if (typeof CryptoJS !== 'undefined') {
+        if (typeof CryptoJS !== 'undefined' && typeof encryptedData === 'string') {
             try {
                 const bytes = CryptoJS.AES.decrypt(encryptedData, this.encryptionKey);
                 return bytes.toString(CryptoJS.enc.Utf8);
@@ -131,7 +153,7 @@ class HospitalDB {
     }
 
     /**
-     *week4 lab
+     *generate secure password (week4 lab)
      */
     generateSecurePassword() {
         const length = 12;
@@ -144,73 +166,74 @@ class HospitalDB {
     }
 
     /**
-     *json storing stuff
+     * Load initial data from JSON files and populate stores (patients, doctors, admin, medicines)
      */
     async loadInitialData() {
         try {
             console.log('Loading initial data from JSON files...');
-            
+
+            // NOTE: these URLs are hosted (you provided the hosted files)
             const patientsResponse = await fetch('https://jsethi-mdx.github.io/cst2572.github.io/patients.json');
             const patientsData = await patientsResponse.json();
-            
+
             const doctorsResponse = await fetch('https://jsethi-mdx.github.io/cst2572.github.io/doctors.json');
             const doctorsData = await doctorsResponse.json();
-            
+
             const adminResponse = await fetch('https://jsethi-mdx.github.io/cst2572.github.io/admin.json');
             const adminData = await adminResponse.json();
-            
+
             const medicinesResponse = await fetch('https://jsethi-mdx.github.io/cst2572.github.io/medicines.json');
             const medicinesData = await medicinesResponse.json();
 
-            //pass -> (patient) 4 storing
+            // patients - generate password, encrypt and store
             console.log('=== PATIENT CREDENTIALS ===');
             for (const patient of patientsData) {
                 const password = this.generateSecurePassword();
                 const encryptedPassword = this.encryptData(password);
-                
+
                 const patientWithPassword = {
                     ...patient,
                     Password: encryptedPassword,
-                    PlainPassword: password //temp (use this 2 see)
+                    PlainPassword: password // temp (for testing) - remove in production
                 };
-                
+
                 await this.addData('patients', patientWithPassword);
                 console.log(`Patient: ${patient.First} ${patient.Last} | Email: ${patient.Email} | Password: ${password}`);
             }
 
-            //pass -> (docs (basma)) 4 storing
+            // doctors - generate password, encrypt and store
             console.log('\n=== DOCTOR CREDENTIALS ===');
             for (const doctor of doctorsData) {
                 const password = this.generateSecurePassword();
                 const encryptedPassword = this.encryptData(password);
-                
+
                 const doctorWithPassword = {
                     ...doctor,
                     Password: encryptedPassword,
                     PlainPassword: password
                 };
-                
+
                 await this.addData('doctors', doctorWithPassword);
                 console.log(`Doctor: ${doctor.first_name} ${doctor.last_name} | Email: ${doctor.email} | Password: ${password}`);
             }
 
-            //admin store
+            // admins - generate password, encrypt and store
             console.log('\n=== ADMIN CREDENTIALS ===');
             for (const admin of adminData) {
                 const password = this.generateSecurePassword();
                 const encryptedPassword = this.encryptData(password);
-                
+
                 const adminWithPassword = {
                     ...admin,
                     Password: encryptedPassword,
                     PlainPassword: password
                 };
-                
+
                 await this.addData('admin', adminWithPassword);
                 console.log(`Admin: ${admin.first_name} ${admin.last_name} | Email: ${admin.email} | Password: ${password}`);
             }
 
-            //store medss
+            // medicines - store as-is
             for (const medicine of medicinesData) {
                 await this.addData('medicines', medicine);
             }
@@ -225,9 +248,10 @@ class HospitalDB {
     }
 
     /**
-     *addData
+     * addData - add to an object store
      */
     async addData(storeName, data) {
+        await this.waitForDB();
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(storeName, 'readwrite');
             const store = transaction.objectStore(storeName);
@@ -239,9 +263,10 @@ class HospitalDB {
     }
 
     /**
-     *fetch from store
+     * getAllData - fetch all records from store
      */
     async getAllData(storeName) {
+        await this.waitForDB();
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(storeName, 'readonly');
             const store = transaction.objectStore(storeName);
@@ -253,9 +278,10 @@ class HospitalDB {
     }
 
     /**
-     *data by ID
+     * getDataById
      */
     async getDataById(storeName, id) {
+        await this.waitForDB();
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(storeName, 'readonly');
             const store = transaction.objectStore(storeName);
@@ -267,9 +293,10 @@ class HospitalDB {
     }
 
     /**
-     *data by Index
+     * getDataByIndex - single result
      */
     async getDataByIndex(storeName, indexName, value) {
+        await this.waitForDB();
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(storeName, 'readonly');
             const store = transaction.objectStore(storeName);
@@ -282,9 +309,10 @@ class HospitalDB {
     }
 
     /**
-     *data by index val. (1 to many)
+     * getAllDataByIndex - 1-to-many
      */
     async getAllDataByIndex(storeName, indexName, value) {
+        await this.waitForDB();
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(storeName, 'readonly');
             const store = transaction.objectStore(storeName);
@@ -297,9 +325,10 @@ class HospitalDB {
     }
 
     /**
-     *updateData
+     * updateData
      */
     async updateData(storeName, data) {
+        await this.waitForDB();
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(storeName, 'readwrite');
             const store = transaction.objectStore(storeName);
@@ -311,9 +340,10 @@ class HospitalDB {
     }
 
     /**
-     *deleteData
+     * deleteData
      */
     async deleteData(storeName, id) {
+        await this.waitForDB();
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction(storeName, 'readwrite');
             const store = transaction.objectStore(storeName);
@@ -325,30 +355,35 @@ class HospitalDB {
     }
 
     /**
-     *authy
+     * authenticate - generic auth method for Patient/Doctor/Admin
      */
     async authenticate(email, password, userType) {
         try {
-            const storeName = userType.toLowerCase() + 's'; // 'patients', 'doctors'
-            if (userType === 'Admin') {
-                storeName = 'admin';
-            }
-            
+            // storeName depends on userType - patients/doctors/admin
+            let storeName;
+            if (userType === 'Patient') storeName = 'patients';
+            else if (userType === 'Doctor') storeName = 'doctors';
+            else if (userType === 'Admin') storeName = 'admin';
+            else storeName = userType.toLowerCase() + 's';
+
+            await this.waitForDB();
+
+            // index name chosen as 'Email' in stores (maps to property 'Email' or 'email' depending on JSON)
             const user = await this.getDataByIndex(storeName, 'Email', email);
-            
+
             if (!user) {
                 return { success: false, message: `${userType} not found` };
             }
 
-            //decrypt pass
+            // decrypt pass (if stored encrypted)
             const decryptedPassword = this.decryptData(user.Password);
-            
-            //pass matching/chckings
+
+            // pass matching
             const passwordMatch = (decryptedPassword === password) || (user.PlainPassword === password);
-            
+
             if (passwordMatch) {
-                return { 
-                    success: true, 
+                return {
+                    success: true,
                     user: user,
                     userType: userType
                 };
@@ -362,48 +397,50 @@ class HospitalDB {
     }
 
     /**
-     *authy (convenicnece method)
+     * convenience auth methods
      */
     async authenticatePatient(email, password) {
         return this.authenticate(email, password, 'Patient');
     }
 
-
     async authenticateDoctor(email, password) {
         return this.authenticate(email, password, 'Doctor');
     }
 
-    /**
-     */
     async authenticateAdmin(email, password) {
         return this.authenticate(email, password, 'Admin');
     }
 
     /**
-     *get patient appts
+     * get patient appointments (helper wrapper)
      */
     async getPatientAppointments(patientId) {
         return this.getAllDataByIndex('appointments', 'Patient_ID', patientId);
     }
 
     /**
-     *same as above
+     * get patient treatments
      */
     async getPatientTreatments(patientId) {
         return this.getAllDataByIndex('treatments', 'Patient_ID', patientId);
     }
 
-
+    /**
+     * get medical notes
+     */
     async getPatientMedicalNotes(patientId) {
         return this.getAllDataByIndex('medical_notes', 'Patient_ID', patientId);
     }
 
+    /**
+     * get doctor appointments
+     */
     async getDoctorAppointments(doctorId) {
         return this.getAllDataByIndex('appointments', 'Doctor_ID', doctorId);
     }
 
     /**
-     *db check has data
+     * is database populated (simple check)
      */
     async isDatabasePopulated() {
         try {
@@ -415,7 +452,7 @@ class HospitalDB {
     }
 
     /**
-     *sample creds
+     * getSampleCredentials - returns first N sample accounts for UI/testing
      */
     async getSampleCredentials(userType = 'Patient') {
         try {
@@ -423,16 +460,28 @@ class HospitalDB {
             if (userType === 'Patient') storeName = 'patients';
             else if (userType === 'Doctor') storeName = 'doctors';
             else if (userType === 'Admin') storeName = 'admin';
-            
+            else storeName = userType.toLowerCase() + 's';
+
+            await this.waitForDB();
+
             const users = await this.getAllData(storeName);
-            
-            return users.slice(0, 3).map(user => ({
-                name: userType === 'Patient' 
-                    ? `${user.First} ${user.Last}`
-                    : `${user.first_name} ${user.last_name}`,
-                email: userType === 'Patient' ? user.Email : user.email,
-                password: user.PlainPassword || 'Password encrypted - check console logs'
-            }));
+
+            return users.slice(0, 3).map(user => {
+                if (userType === 'Patient') {
+                    return {
+                        name: `${user.First} ${user.Last}`,
+                        email: user.Email,
+                        password: user.PlainPassword || 'Password encrypted - check console logs'
+                    };
+                } else {
+                    // doctor/admin use first_name / last_name and email lowercase fields
+                    return {
+                        name: `${user.first_name || user.First || ''} ${user.last_name || user.Last || ''}`.trim(),
+                        email: user.email || user.Email || '',
+                        password: user.PlainPassword || 'Password encrypted - check console logs'
+                    };
+                }
+            });
         } catch (error) {
             console.error('Error getting sample credentials:', error);
             return [];
@@ -440,11 +489,11 @@ class HospitalDB {
     }
 
     /**
-     *data dels clear all data (testing)
+     * clear all data (testing)
      */
     async clearAllData() {
         const stores = ['patients', 'doctors', 'admin', 'medicines', 'appointments', 'treatments', 'medical_notes'];
-        
+
         for (const storeName of stores) {
             try {
                 const transaction = this.db.transaction(storeName, 'readwrite');
@@ -458,14 +507,14 @@ class HospitalDB {
     }
 
     /**
-     *-> saves data in session
+     * save session
      */
     saveSession(userId, userType, userName, additionalData = {}) {
         sessionStorage.setItem('userId', userId);
         sessionStorage.setItem('userType', userType);
         sessionStorage.setItem('userName', userName);
-        
-        //for patients, also store patient ID and NHS
+
+        // for patients, also store patient ID and NHS
         if (userType === 'Patient' && additionalData.patientId) {
             sessionStorage.setItem('patientId', additionalData.patientId);
         }
@@ -474,6 +523,9 @@ class HospitalDB {
         }
     }
 
+    /**
+     * get session
+     */
     getSession() {
         return {
             userId: sessionStorage.getItem('userId'),
@@ -484,6 +536,9 @@ class HospitalDB {
         };
     }
 
+    /**
+     * clear session
+     */
     clearSession() {
         sessionStorage.removeItem('userId');
         sessionStorage.removeItem('userType');
@@ -492,10 +547,16 @@ class HospitalDB {
         sessionStorage.removeItem('patientNHS');
     }
 
+    /**
+     * isAuthenticated
+     */
     isAuthenticated() {
         return sessionStorage.getItem('userId') !== null;
     }
 
+    /**
+     * requireAuth helper
+     */
     requireAuth(redirectUrl = 'login.html') {
         if (!this.isAuthenticated()) {
             window.location.replace(redirectUrl);
@@ -505,18 +566,19 @@ class HospitalDB {
     }
 }
 
+// create singleton
 const hospitalDB = new HospitalDB();
 
-//int db
+// initialize DB on DOMContentLoaded (safe)
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         await hospitalDB.init();
-        
-        //checks exists
+
+        // checks exists
         const isPopulated = await hospitalDB.isDatabasePopulated();
-        
+
         if (!isPopulated) {
-            console.log('📥 Loading initial data from JSON files...');
+            console.log('Loading initial data from JSON files...');
             await hospitalDB.loadInitialData();
         } else {
             console.log('HospitalDB already populated');
