@@ -6,6 +6,8 @@
 	<title>MediCare | Home Page</title>
 	<link rel="stylesheet" href="styles.css">
 	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="../js/dbmanager.js"></script>
+
 </head>
 <body>
 <!-- NAV BAR -->
@@ -22,16 +24,18 @@
   </div>
 
   <ul class="nav-right">
-    <li><a href="patient/login.html">Book Appointment</a></li>
+    <li><a href="../patient/login.html">Book Appointment</a></li>
     <li><a href="#about">About Us</a></li>
     <li><a href="contact.html">Contact Us</a></li>
 
 	<!-- LOGIN DROPDOWN -->
 	<li class="nav-item dropdown">
-	  <a href="#" class="login-btn">Login <i class="fa fa-caret-down"></i></a>
-	  <div class="dropdown-menu">
-		<a href="patient/login.html">Patient Portal</a>
-		<a href="doctor/login.html">Doctor Portal</a>
+		<a href="#" class="login-btn">
+			<span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
+		</a>
+	<div class="dropdown-menu" id="loginDropdown">
+		<a href="../patient/login.html">Patient Portal</a>
+		<a href="../doctor/login.html">Doctor Portal</a>
 	  </div>
 	</li>
   </ul>
@@ -105,7 +109,7 @@
   
   <!-- placeholder for admin button cuz js for now -->
   <div class="admin-access">
-    <a href="admin/portal.html" class="admin-btn">
+    <a href="../admin/login.html" class="admin-btn">
       <i class="fa fa-lock"></i> Admin Portal
     </a>
   </div>
@@ -133,6 +137,49 @@
     </div>
 </footer>
 
+<script>
+//logout
+function logout() {
+    hospitalDB.clearSession();
+    window.location.replace("login.html");
+}
+
+//portal redirect
+function goPortal() {
+    const type = sessionStorage.getItem('userType');
+
+    if (type === 'Patient') window.location.href = '../patient/portal.html';
+    if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+    if (type === 'Admin') window.location.href = '../admin/portal.html';
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const session = hospitalDB.getSession();
+    const dropdown = document.getElementById("loginDropdown");
+
+    //if logged in
+    if (session && session.userName) {
+
+        //name
+        document.getElementById('userNameDisplay').textContent =
+            session.userName.split(' ')[0];
+
+        //dropdown
+        dropdown.innerHTML = `
+            <a href="#" onclick="goPortal()">Portal</a>
+            <a href="#" onclick="logout()">Logout</a>
+        `;
+    }
+    else {
+        //if not logged in, login menu
+        dropdown.innerHTML = `
+            <a href="../patient/login.html">Patient Portal</a>
+            <a href="../doctor/login.html">Doctor Portal</a>
+        `;
+    }
+});
+</script>
 
     </body>
 </html>
