@@ -1,0 +1,525 @@
+<!--
+- Need to fix CSS styling in general; dropdown style to make it like patients 
+- Medication name display try to fix
+- Add in input sanitisation
+- For some reason the required field in input is not working 
+- VALIDATION FOR DOSAGE FORMAT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel = "stylesheet" href="../main/styles.css">
+	<title>Adding Medical Record | MediCare</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<!-- internal CSS styling  -->
+	<style>
+        /* ======= doctors portal styling ======== */
+
+        body {
+            background-color: white; 
+            margin:0; 
+            padding:0; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            font-family:sans-serif
+        }
+
+        .container{
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            box-sizing: border-box;
+        }
+
+        .container h1, h2 {
+            color:#69d1c5;
+            font-family: "TT Chocolates", sans-serif;
+            margin-bottom: 0.5rem;
+        }
+
+        .subcontainer{
+            background-color: #eef2f6;
+            border-radius: 4px;
+            border: 1px solid;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+            width: 97.8%;
+        }
+
+        .form-title {
+            color: #316bac;
+            font-size: 32px;
+            font-family: 'Open Sans', sans-serif;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .doctor-form {
+            background-color: #f7f9fc;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #316bac;
+            transition: 0.3s ease;
+        }
+
+        .doctor-subcontainer{
+            margin-bottom: 1.5rem;
+        }
+
+        .doctor-subcontainer label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .doctor-subcontainer input, .doctor-subcontainer textarea {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 13.4px;
+            border: 1px solid;
+            background-color: #eef2f6;
+            border-radius: 4px;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .doctor-subcontainer input:focus, .doctor-subcontainer textarea:focus {
+            border-color: #316bac;
+            outline: none;
+        }
+
+        .med-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+            padding-left: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.4px;
+            cursor: pointer;
+            line-height: 1.4;
+            padding: 4px 6px;
+            border-radius: 4px;
+            background-color: #ffffff;
+            transition: background-color 0.2s;
+        }
+
+        .checkbox-label:hover {
+            background-color: #e6eef9;
+        }
+        .checkbox-label input[type="checkbox"]{
+            transform: scale(1.2);
+            margin: 0;
+        }
+
+        .noteButton {
+            align-items: center;
+            background-color:#316bac;
+            color: white;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 15.4px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3 ease;
+            cursor: pointer;
+        }
+
+        .noteButton:hover{
+                background-color: #141b41;
+        }
+
+		footer {
+			background: #120D0A;
+			color: #FFFFF0;
+			padding: 3rem 2rem;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 2rem;
+			width: 100%;
+		}
+
+		.social-icons {
+			display: flex;
+			gap: 1rem;
+			flex-wrap: wrap;
+			
+		}
+
+        .social-icons img {
+            width: 40px;
+            height: 40px;
+        }
+
+		.social-icons a {
+			color: #FFFFF0;
+			text-decoration: none;
+		}
+
+		.copyright {
+			grid-column: 1 / -1;
+			text-align: center;
+			padding-top: 2rem;
+			border-top: 1px solid #444;
+		}
+			
+		.user-actions {
+			display: flex;
+			align-items: center;
+			gap: 1.5rem;
+			margin-left: 1rem;
+		}
+
+		.action-icon {
+			width: 30px;
+			height: 30px;
+		}
+	</style>
+
+    <!-- Load doctordatabase.js -->
+    <script src="../js/dbmanager.js"></script>
+    <script>
+
+    window.onDBReady = function() {
+        console.log("DB is ready to populate dropdowns");
+        populatePatientNHSDropdown();
+        getMedicationData(); 
+    };
+
+    function populatePatientNHSDropdown() {
+        if (!db) {
+            console.error("Patient Object Store not ready yet");
+            return;
+        }
+        
+        const transaction = db.transaction("patients","readonly");
+        const store = transaction.objectStore("patients");
+        const getAllRequest = store.getAll();
+
+        getAllRequest.onsuccess = function(event) {
+            const patients = event.target.result;
+            const list = document.getElementById("name-list-p");
+            list.innerHTML = "";
+
+            if (patients.length === 0) {
+                return;
+            }
+
+            patients.forEach(patient => {
+                const div = document.createElement("div");
+                div.textContent = `${patient.NHS}`;
+                div.onclick = () => selectedPatient(patient);
+                list.appendChild(div);
+            });
+        };
+
+        getAllRequest.onerror = function(event){
+            console.error("Error fetching patients: ", event.target.error);
+        };
+    }
+
+    function selectedPatient(patient){
+        document.getElementById("name-input-p").value = `${patient.NHS}`;
+        document.getElementById("name-list-p").style.display = "none";
+    }
+
+
+    // 
+    function getMedicationData() {
+        const transaction = db.transaction("medicines", "readonly");
+        const store = transaction.objectStore("medicines");
+        const getAllRequest = store.getAll();
+
+        getAllRequest.onsuccess = function (event) {
+            const meds = event.target.result;
+            const medName = meds.map(item => item.Drug || item.drugName);
+            const medColumn = document.getElementById("medication-column");
+            if (medColumn) {
+                medColumn.innerHTML = displayMedication(medName);
+            } else {
+                console.log("Element not found on this page.");
+            }
+        };
+
+        getAllRequest.onerror = function (event) {
+            console.error("Error reading data from Medicine object store", event);
+        };
+    }
+
+    // Generate checkbox for HTML to display the medication names
+    function displayMedication(medName) {
+        return medName
+            .map(
+                (name, index) => `
+                <label class="checkbox-label">
+                    <input type="checkbox" class="med-checkbox" value="${name}" id="med${index + 1}"><span>${name}</span>
+                </label>`
+            )
+            .join('\n');
+    }
+
+    // Inserting data from form into medical notes object store
+    function inputMedicalRecord(){
+        // Read from the dropdown inputs
+        const nhs = document.getElementById("name-input-p") ? document.getElementById("name-input-p").value : "";
+        const docname = document.getElementById("doctName").value;
+        const speciality = document.getElementById("speciality").value;
+        const date = document.getElementById("date").value;
+        const reason = document.getElementById("reason").value;
+        const assessment = document.getElementById("assessment").value;
+        const treatment = document.getElementById("treatment").value;
+        const dosage = document.getElementById("dosage").value;
+        const notes = document.getElementById("notes").value;
+
+        // to delete when the other validation is fixed
+        const meds = Array.from(document.querySelectorAll('.med-checkbox:checked')).map(checkbox => checkbox.value);
+        if (!nhs || !docname || !speciality || !date || !reason || !assessment || !treatment || !dosage || !notes) {
+        alert("Please fill in all required fields before submitting.");
+        return;
+        }
+        const record = {
+            patientNhs: nhs,
+            doctorName: docname, 
+            doctorSpeciality: speciality,
+            appointmentId: Date.now(),
+            notesDate: date,
+            notesReason: reason,
+            notesAssessment: assessment,
+            notesTreatment: treatment,
+            notesMedication: meds.join(", "),
+            notesDosage: dosage,
+            notesAdd: notes
+        };
+        
+        const transaction = db.transaction("medical_notes", "readwrite");
+        const store = transaction.objectStore("medical_notes");
+        const addRequest = store.add(record);
+
+        addRequest.onsuccess = () => {
+            alert("Medical Record Saved!");
+            document.querySelector('.doctor-form').reset();
+            // Clear dropdowns
+            document.getElementById("name-input-p").value = "";
+        };
+
+        addRequest.onerror = (event) => {
+            alert("Error Saving Record: " + event.target.error.message);
+        };
+    }
+    </script>
+</head>
+
+<body>
+<!-- NAV BAR (jeanette) -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../index.html" class="logo-text">MediCare</a>
+
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="appointment.html">Book Appointment</a></li>
+    <li><a href="#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <!-- LOGIN DROPDOWN -->
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+	    <a href="#" onclick="goPortal()">Portal</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<!-- Doctor Portal -->
+<div class="container"> 
+    <h1 class="form-title">Add New Doctor's Note</h1>
+    <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
+    <br/><br/>
+    <form class="doctor-form">
+
+        <label><b>Select Patient NHS</b></label>
+        <div class="doctordropdown" id="patient-dropdown">
+            <input 
+            type="text" 
+            id="name-input-p" 
+            placeholder="Select Patient NHS" 
+            onkeyup="filteringInputP()" 
+            onclick="toggleDropdownP()" 
+            autocomplete="off"
+            required placeholder="Enter patient NHS"
+            >
+            <div class="doctordropdown-text" id="name-list-p"></div>
+        </div>
+
+        <div class="doctor-subcontainer">
+            <label for="doctName">Doctor Name</label>
+            <input type="text" id="doctName" name="doctName">
+        </div>
+
+        <div class="doctor-subcontainer">
+            <label for="speciality">Doctor Department</label>
+            <input type="text" id="speciality" name="speciality" required placeholder="Enter your department">
+        </div>
+
+        <div class="doctor-subcontainer">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" required placeholder="Select a date">
+        </div>
+
+        <div class="doctor-subcontainer">
+            <label for="reason">Reason for Visit</label>
+            <textarea id="reason" name="reason" rows="3" required placeholder="Enter reason for visit"></textarea>
+        </div>
+
+        <div class="doctor-subcontainer">
+            <label for="assessment">Assessment</label>
+            <textarea id="assessment" name="assessment" rows="3" required placeholder="Enter assessment details"></textarea>
+        </div>
+
+        <div class="doctor-subcontainer">
+            <label for="treatment">Treatment Provided</label>
+            <textarea id="treatment" name="treatment" rows="3" required placeholder="Enter treatment details"></textarea>
+        </div>
+
+        <div class="doctor-subcontainer">
+            <label for="medication">Select Medications</label>
+            <div class="subcontainer">
+            <div class="med-grid" id="medication-column" required placeholder="Select medications"></div>
+        </div>
+        </div>
+
+        <div class="doctor-subcontainer">
+            <label for="dosage">Dosage (format must be: dosage_1, dosage_2)</label>
+            <input type="text" id="dosage" name="dosage" required placeholder="Enter in dosage">
+        </div>
+
+        <div class="doctor-subcontainer">
+            <label for="notes">Additional Notes</label>
+            <textarea id="notes" name="notes" rows="4"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: center; margin-top: 1rem;">
+            <button type="button" class="noteButton" onclick="inputMedicalRecord()">Add Medical Record</button>
+        </div>
+    </form>
+</div>
+
+  <!-- FOOTER -->
+<footer style="margin-top:50px;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+		<br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+			<img src="../images/insta.png" alt="Instagram" width="70" height="70">
+			<img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+			<img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+			<img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+			<img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+    /* ============== */
+    function toggleDropdownP(){
+        const dropdown = document.getElementById("name-list-p");
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+
+    function filteringInputP(){
+        const input = document.getElementById("name-input-p").value.toUpperCase();
+        const names = document.querySelectorAll("#name-list-p div");
+
+        names.forEach(name => {
+            const text = name.textContent.toUpperCase();
+            name.style.display = text.includes(input) ? "" : "none";
+        }); 
+    }
+
+    function checkAuth() {
+    const session = hospitalDB.getSession();
+
+    if (!session.userId || session.userType !== 'Doctor') {
+        window.location.replace('login.html');
+        return false;
+    }
+
+    //add ui in name
+    const fullName = session.userName || 'Doctor';
+    const firstName = fullName.split(' ')[0];
+
+    document.getElementById('userNameDisplay').textContent = firstName;
+    const docNameInput = document.getElementById("doctName");
+    if (docNameInput){
+        docNameInput.value = fullName;
+        docNameInput.readOnly = true;
+    }
+
+    return true;
+    }
+
+    // To add in todays date on default
+    window.addEventListener('DOMContentLoaded', () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+    });
+
+    //dropdown update
+    function goPortal() {
+        const type = sessionStorage.getItem('userType');
+
+        if (type === 'Patient') window.location.href = '../patient/portal.html';
+        if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+        if (type === 'Admin') window.location.href = '../admin/portal.html';
+    }
+
+    //logout -- clear session
+    function logout() {
+        hospitalDB.clearSession();
+        window.location.replace('login.html');
+    }
+
+    //db check
+    window.onload = async function() {
+        if (!hospitalDB.db) {
+            await hospitalDB.init();
+        }
+        checkAuth();
+    };
+    /* =============== */
+</script>
+
+</body>
+</html>

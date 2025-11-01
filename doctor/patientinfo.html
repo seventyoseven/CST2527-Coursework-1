@@ -1,0 +1,418 @@
+<!--
+- Need to fix the CSS; dropdown style to make it like patients 
+- The appointment details box need to be set to fixed width not dynamic sizing
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel = "stylesheet" href="../main/styles.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<title>Doctor Portal | MediCare</title>
+	
+	<!-- internal CSS styling  -->
+	<style>
+        /* ======= doctors portal styling ======== */
+
+        body {
+            background-color: white; 
+            margin:0; 
+            padding:0; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            font-family:sans-serif
+        }
+
+        .container{
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            box-sizing: border-box;
+        }
+
+        .container h1, h2 {
+            color:#69d1c5;
+            font-family: "TT Chocolates", sans-serif;
+            margin-bottom: 0.5rem;
+        }
+
+        .subcontainer{
+            background-color: #f7f9f9;
+            border-radius: 4px;
+            border: 1px solid #316bac;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .doctordropdown {
+            border: 1px solid;
+            border-color: #316bac;
+            padding: 2rem 1rem;
+            width: 100%;
+            max-width: 1150px;
+            margin: 2rem auto 6rem;
+            position: relative;
+            border-radius: 4px;          
+        }
+
+        .doctordropdown input {
+            width: 100%;
+            padding: 10px;
+            font-size: 15.4px;
+            border: none;
+            outline: none;
+            background: transparent;
+        }
+
+        .doctordropdown-text {
+            position: absolute;
+            top: 100%;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: white;
+            display: none;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .doctordropdown-text div {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .doctordropdown-text div:hover {
+            background-color: #316bac;
+            color: white;
+        }
+
+        .patient-name-display { 
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .patient-details {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            max-width: 1150px;
+            font-size: 17px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .doctor-info-display {
+            font-size: 17px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .doctorButton {
+            align-items: center;
+            background-color:#316bac;
+            color: white;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 15.4px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3 ease;
+        }
+
+        .doctorButton:hover {
+            background-color: #141b41;
+        }
+
+		footer {
+			background: #120D0A;
+			color: #FFFFF0;
+			padding: 3rem 2rem;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 2rem;
+			width: 100%;
+		}
+
+		.social-icons {
+			display: flex;
+			gap: 1rem;
+			flex-wrap: wrap;
+			
+		}
+
+        .social-icons img {
+            width: 40px;
+            height: 40px;
+        }
+
+		.social-icons a {
+			color: #FFFFF0;
+			text-decoration: none;
+		}
+
+		.copyright {
+			grid-column: 1 / -1;
+			text-align: center;
+			padding-top: 2rem;
+			border-top: 1px solid #444;
+		}
+			
+		.user-actions {
+			display: flex;
+			align-items: center;
+			gap: 1.5rem;
+			margin-left: 1rem;
+		}
+
+		.action-icon {
+			width: 30px;
+			height: 30px;
+		}
+	</style>
+
+    <!-- Load doctordatabase.js first -->
+    <script src="../js/dbmanager.js"></script>
+    
+    <script>  
+        // Wait for database to be ready
+        window.onDBReady = function() {
+            console.log("DB is ready to populate patient dropdown");
+            populatePatientDropdown();
+        };
+        
+        function populatePatientDropdown() {
+            if (!db) {
+                console.error("Database not ready yet");
+                return;
+            }
+            
+            const transaction = db.transaction("patients","readonly");
+            const store = transaction.objectStore("patients");
+            const getAllRequest = store.getAll();
+
+            getAllRequest.onsuccess = function(event) {
+                const patients = event.target.result;
+                const list = document.getElementById("name-list");
+                list.innerHTML = "";
+
+                if (patients.length === 0) {
+                    return;
+                }
+
+                patients.forEach(patient => {
+                    const div = document.createElement("div");
+                    div.textContent = `${patient.First} ${patient.Last}`;
+                    div.onclick = () => selectedPatient(patient);
+                    list.appendChild(div);
+                });
+            };
+
+            getAllRequest.onerror = function(event){
+                console.error("Error fetching patients: ", event.target.error);
+            };
+        }
+
+        function selectedPatient(patient){
+            document.getElementById("name-input").value = `${patient.First} ${patient.Last}`;
+            document.getElementById("name-list").style.display = "none";
+
+            displayPatientDetails(patient);
+            displayPatientRecords(patient.NHS);
+        }
+
+        function displayPatientDetails(patient){
+            const container = document.querySelector(".patient-name-display");
+            container.innerHTML = `
+            <p style="font-size: 17px;"><b>You are now viewing the medical records of</b></p>
+            <br/>
+            <h2 style="font-size: 30.4px;">${patient.First} ${patient.Last}</h2>
+            <br/>
+            <div class="patient-details">
+            <div><b>NHS: </b>${patient.NHS || "N/A"}</div>
+            <div><b>Date of Birth: </b>${patient.DOB || "N/A"}</div>
+            <div><b>Gender: </b>${patient.Gender || "N/A"}</div>
+            <div><b>Telephone: </b>${patient.Telephone || "N/A"}</div>
+            </div>
+        `;
+        }
+
+        function displayPatientRecords(patientNHS){
+            const container = document.querySelector(".container");
+            const prevrecords = document.querySelectorAll(".subcontainer");
+            prevrecords.forEach(data => data.remove()); // to clear old records
+
+            const transaction = db.transaction("medical_notes", "readonly");
+            const store = transaction.objectStore("medical_notes");
+            const index = store.index("Patient_NHS");
+            const allrequest = index.getAll(patientNHS);
+
+            allrequest.onsuccess = function(event){
+                const records = event.target.result;
+
+                console.log("Found records:", records.length);
+
+                if (records.length === 0){
+                    const norecords = document.createElement("div");
+                    norecords.className = "subcontainer";
+                    norecords.innerHTML = "<p>No medical records found for this patient.</p>";
+                    container.appendChild(norecords);
+                    return;
+                }
+
+                records.forEach(record => {
+                    const medsplit = (record.notesMedication || "").split(",");
+                    const doses = (record.notesDosage || "").split(",");
+                    const medsection = medsplit.map((m, i) => `${m.trim()} (${(doses[i] || "").trim()})`).join(" ");
+                    const recordDiv = document.createElement("div");
+                    
+                    recordDiv.className = "subcontainer";
+                    recordDiv.innerHTML = `
+                    <div class="doctor-info-display">
+                    <div><b>${record.doctorName || "Unknown"}</b></div>
+                    <div><b>${record.doctorSpeciality || "Unknown"}</b></div>
+                    <div><b>${record.notesDate || "Date unknown"}</b></div>
+                    </div>
+                    <br/><br/>
+                    <p><b>Reason for Visit: </b>${record.notesReason || "N/A"}</p>
+                    <p><b>Assessment: </b>${record.notesAssessment || "N/A"}</p>
+                    <p><b>Treatment Provided: </b>${record.notesTreatment || "N/A"}</p>
+                    <p><b>Medications Prescribed with Dosage: </b>${medsection || "N/A"}</p>
+                    <p><b>Additional Notes: </b>${record.notesAdd || "N/A"}</p>
+                    `;
+
+                    container.appendChild(recordDiv);
+                });
+            };
+            
+            allrequest.onerror = function(event){
+                console.error("Error fetching records: ", event.target.error);
+            };
+        }
+             
+    </script>
+</head>
+
+<body>
+
+<!-- NAV BAR (jeanette) -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../index.html" class="logo-text">MediCare</a>
+
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="appointment.html">Book Appointment</a></li>
+    <li><a href="#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <!-- LOGIN DROPDOWN -->
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+	    <a href="#" onclick="goPortal()">Portal</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<!-- Doctor Portal -->
+<div class="container">
+  <h1 style="font-size: 34.5px;">Select a Patient to Access their Medical Records</h1>
+  <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
+  <br/><br/>
+  <p>View medical history, prescriptions and records by selecting a patient's name from the dropdown menu.</p>
+
+  <div class="doctordropdown" id="name-dropdown">
+    <input 
+      type="text" 
+      id="name-input" 
+      placeholder="Select Patient Name" 
+      onkeyup="filteringInput()" 
+      onclick="toggleDropdown()" 
+      autocomplete="off"
+    >
+    <div class="doctordropdown-text" id="name-list"></div>
+  </div>
+
+  <div class="patient-name-display"></div>
+</div>
+
+<!-- FOOTER -->
+<footer style="margin-top:50px;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+		<br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+			<img src="../images/insta.png" alt="Instagram" width="70" height="70">
+			<img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+			<img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+			<img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+			<img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+<script>
+    /* ============== */
+    function toggleDropdown(){
+        const dropdown = document.getElementById("name-list");
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+
+    function filteringInput(){
+        const input = document.getElementById("name-input").value.toUpperCase();
+        const names = document.querySelectorAll("#name-list div");
+
+        names.forEach(name => {
+            const text = name.textContent.toUpperCase();
+            name.style.display = text.includes(input) ? "" : "none";
+        }); 
+    }
+
+    //dropdown update
+    function goPortal() {
+        const type = sessionStorage.getItem('userType');
+
+        if (type === 'Patient') window.location.href = '../patient/portal.html';
+        if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+        if (type === 'Admin') window.location.href = '../admin/portal.html';
+    }
+
+    //logout -- clear session
+    function logout() {
+        hospitalDB.clearSession();
+        window.location.replace('login.html');
+    }
+
+    //db check
+    window.onload = async function() {
+        if (!hospitalDB.db) {
+            await hospitalDB.init();
+        }
+    };
+    /* =============== */
+</script>
+</body>
+</html>
