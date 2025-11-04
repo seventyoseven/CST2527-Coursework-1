@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal | Medicare</title>
+  <link rel="stylesheet" href="../main/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="../js/dbmanager.js"></script>
+</head>
+<body>
+
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../main/index.html" class="logo-text">MediCare</a>
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="../patient/login.html">Book Appointment</a></li>
+    <li><a href="#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <!-- LOGIN DROPDOWN -->
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Admin</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+	    <a href="#" onclick="goPortal()">Portal</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<!-- admin portal -->
+  <main>
+    <div class="container">
+      <h1>Manage Patient Information</h1>
+      <p class="subtitle">Select an option below to manage patient records.</p>
+
+      <div class="card-container">
+        <a href="add.html" class="card">
+          <h2>Add Patient</h2>
+          <p>Create a new patient record with contact and medical details.</p>
+        </a>
+
+        <a href="update.html" class="card">
+          <h2>Update Patient</h2>
+          <p>Edit an existing patient's information such as address or phone number.</p>
+        </a>
+
+        <a href="delete.html" class="card delete">
+          <h2>Delete Patient</h2>
+          <p>Remove a patient record from the database.</p>
+        </a>
+      </div>
+    </div>
+  </main>
+  
+  <!-- FOOTER -->
+<footer style="margin-top:50px;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+        <br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+            <img src="../images/insta.png" alt="Instagram" width="70" height="70">
+            <img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+            <img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+            <img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+            <img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+//auth check
+function checkAuth() {
+    const session = hospitalDB.getSession();
+
+    if (!session.userId || session.userType !== "Admin") {
+        window.location.replace("login.html");
+        return false;
+    }
+
+    document.getElementById("userNameDisplay").textContent =
+        session.userName?.split(" ")[0] || "Admin";
+
+    return true;
+}
+
+//logout
+function logout() {
+    hospitalDB.clearSession();
+    window.location.replace("login.html");
+}
+
+//dropdown update
+function goPortal() {
+    const type = sessionStorage.getItem('userType');
+
+    if (type === 'Patient') window.location.href = '../patient/portal.html';
+    if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+    if (type === 'Admin') window.location.href = '../admin/portal.html';
+}
+
+//db check
+window.onload = async function() {
+    if (!hospitalDB.db) {
+        await hospitalDB.init();
+    }
+
+    checkAuth();
+};
+</script>
+
+</body>
+</html>

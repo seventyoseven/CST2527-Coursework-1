@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Update Patient | Medicare</title>
+  <link rel="stylesheet" href="../main/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="../js/dbmanager.js"></script>
+</head>
+<body>
+
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../main/index.html" class="logo-text">MediCare</a>
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="../patient/login.html">Book Appointment</a></li>
+    <li><a href="#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <!-- LOGIN DROPDOWN -->
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Admin</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+	    <a href="#" onclick="goPortal()">Portal</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<!-- update patient-->
+  <div class="container">
+    <h1>Update Patient</h1>
+    <p class="subtitle">Enter NHS number to find patient, then update their information.</p>
+
+    <div id="statusMessage" style="margin-bottom: 15px; display: none; padding: 10px; border-radius: 5px;"></div>
+
+    <form class="patient-form" id="updateForm">
+      <div class="form-row">
+        <label>NHS Number</label>
+        <input type="text" id="nhsNumber" placeholder="Enter patient's NHS number" maxlength="10" required />
+        <button type="button" onclick="findPatient()" class="btn" style="margin-top: 10px;">Find Patient</button>
+      </div>
+
+      <div id="patientInfoSection" style="display: none; margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px;">
+        <h3>Patient Found:</h3>
+        <p id="patientName" style="font-size: 1.1rem; font-weight: bold;"></p>
+        <p id="patientDetails" style="color: #666;"></p>
+      </div>
+
+      <div id="updateSection" style="display: none; margin-top: 20px;">
+        <div class="form-row">
+          <label>Field to Update</label>
+          <select id="fieldSelect">
+            <option value="">-- Select Field --</option>
+            <option value="First">First Name</option>
+            <option value="Last">Last Name</option>
+            <option value="Address">Address</option>
+            <option value="DOB">Date of Birth</option>
+            <option value="Telephone">Telephone</option>
+            <option value="Email">Email</option>
+          </select>
+        </div>
+
+        <div class="form-row" id="updateFieldRow" style="display: none;">
+          <label id="updateLabel">Enter Updated Information</label>
+          <input type="text" id="updateInput" placeholder="Enter updated info" />
+        </div>
+
+        <button type="submit" class="btn" style="margin-top: 15px;">Update Patient</button>
+      </div>
+    </form>
+
+    <a href="portal.html" class="back-link">← Back to Main Menu</a>
+  </div>
+
+  <!-- FOOTER -->
+<footer style="margin-top:50px;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+        <br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+            <img src="../images/insta.png" alt="Instagram" width="70" height="70">
+            <img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+            <img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+            <img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+            <img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+var currentPatient = null;
+
+//auth check
+function checkAuth() {
+    const session = hospitalDB.getSession();
+
+    if (!session.userId || session.userType !== "Admin") {
+        window.location.replace("login.html");
+        return false;
+    }
+
+    document.getElementById("userNameDisplay").textContent =
+        session.userName?.split(" ")[0] || "Admin";
+
+    return true;
+}
+
+//logout
+function logout() {
+    hospitalDB.clearSession();
+    window.location.replace("login.html");
+}
+
+//dropdown update
+function goPortal() {
+    const type = sessionStorage.getItem('userType');
+
+    if (type === 'Patient') window.location.href = '../patient/portal.html';
+    if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+    if (type === 'Admin') window.location.href = '../admin/portal.html';
+}
+
+//find patient by NHS
+async function findPatient() {
+    const statusMsg = document.getElementById('statusMessage');
+    const nhs = document.getElementById('nhsNumber').value.trim();
+
+    statusMsg.style.display = 'none';
+    document.getElementById('patientInfoSection').style.display = 'none';
+    document.getElementById('updateSection').style.display = 'none';
+
+    if (!nhs) {
+        statusMsg.textContent = 'Please enter an NHS number';
+        statusMsg.style.backgroundColor = '#fee';
+        statusMsg.style.color = 'red';
+        statusMsg.style.display = 'block';
+        return;
+    }
+
+    try {
+        if (!hospitalDB.db) {
+            await hospitalDB.init();
+        }
+
+        const patient = await hospitalDB.getDataByIndex('patients', 'NHS', nhs);
+
+        if (!patient) {
+            statusMsg.textContent = 'No patient found with this NHS number';
+            statusMsg.style.backgroundColor = '#fee';
+            statusMsg.style.color = 'red';
+            statusMsg.style.display = 'block';
+            return;
+        }
+
+        //store patient for update
+        currentPatient = patient;
+
+        //display patient info
+        document.getElementById('patientName').textContent = `${patient.First} ${patient.Last}`;
+        document.getElementById('patientDetails').textContent = 
+            `NHS: ${patient.NHS} | DOB: ${patient.DOB} | Email: ${patient.Email}`;
+        
+        document.getElementById('patientInfoSection').style.display = 'block';
+        document.getElementById('updateSection').style.display = 'block';
+
+    } catch (error) {
+        console.error('Error finding patient:', error);
+        statusMsg.textContent = 'An error occurred. Please try again.';
+        statusMsg.style.backgroundColor = '#fee';
+        statusMsg.style.color = 'red';
+        statusMsg.style.display = 'block';
+    }
+}
+
+//handle field selection
+document.getElementById('fieldSelect').addEventListener('change', function() {
+    const selected = this.value;
+    const updateFieldRow = document.getElementById('updateFieldRow');
+    const updateLabel = document.getElementById('updateLabel');
+    const updateInput = document.getElementById('updateInput');
+
+    if (selected) {
+        updateFieldRow.style.display = 'block';
+
+        switch (selected) {
+            case 'DOB':
+                updateInput.type = 'date';
+                updateLabel.textContent = 'Enter New Date of Birth';
+                updateInput.placeholder = '';
+                break;
+            case 'Telephone':
+                updateInput.type = 'tel';
+                updateLabel.textContent = 'Enter New Telephone Number';
+                updateInput.placeholder = 'Enter new phone number';
+                break;
+            case 'Email':
+                updateInput.type = 'email';
+                updateLabel.textContent = 'Enter New Email';
+                updateInput.placeholder = 'Enter new email address';
+                break;
+            case 'Address':
+                updateInput.type = 'text';
+                updateLabel.textContent = 'Enter New Address';
+                updateInput.placeholder = 'Enter new address';
+                break;
+            case 'First':
+                updateInput.type = 'text';
+                updateLabel.textContent = 'Enter New First Name';
+                updateInput.placeholder = 'Enter new first name';
+                break;
+            case 'Last':
+                updateInput.type = 'text';
+                updateLabel.textContent = 'Enter New Last Name';
+                updateInput.placeholder = 'Enter new last name';
+                break;
+            default:
+                updateInput.type = 'text';
+                updateLabel.textContent = 'Enter Updated Information';
+                updateInput.placeholder = 'Enter updated info';
+        }
+    } else {
+        updateFieldRow.style.display = 'none';
+    }
+});
+
+//handle update
+async function handleUpdate(event) {
+    event.preventDefault();
+
+    const statusMsg = document.getElementById('statusMessage');
+    const field = document.getElementById('fieldSelect').value;
+    const newValue = document.getElementById('updateInput').value.trim();
+
+    statusMsg.style.display = 'none';
+
+    if (!currentPatient) {
+        statusMsg.textContent = 'Please find a patient first';
+        statusMsg.style.backgroundColor = '#fee';
+        statusMsg.style.color = 'red';
+        statusMsg.style.display = 'block';
+        return;
+    }
+
+    if (!field || !newValue) {
+        statusMsg.textContent = 'Please select a field and enter a new value';
+        statusMsg.style.backgroundColor = '#fee';
+        statusMsg.style.color = 'red';
+        statusMsg.style.display = 'block';
+        return;
+    }
+
+    try {
+        if (!hospitalDB.db) {
+            await hospitalDB.init();
+        }
+
+        //format DOB if needed
+        if (field === 'DOB') {
+            const dobFormatted = new Date(newValue).toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }).replace(/\//g, '/');
+            currentPatient[field] = dobFormatted;
+        } else {
+            currentPatient[field] = newValue;
+        }
+
+        //update in database
+        await hospitalDB.updateData('patients', currentPatient);
+
+
+        //success message
+        statusMsg.textContent = `Patient ${field} updated successfully!`;
+        statusMsg.style.backgroundColor = '#d4edda';
+        statusMsg.style.color = '#155724';
+        statusMsg.style.display = 'block';
+
+        //reset update fields
+        document.getElementById('fieldSelect').value = '';
+        document.getElementById('updateInput').value = '';
+        document.getElementById('updateFieldRow').style.display = 'none';
+
+        //update displayed info
+        document.getElementById('patientName').textContent = `${currentPatient.First} ${currentPatient.Last}`;
+        document.getElementById('patientDetails').textContent = 
+            `NHS: ${currentPatient.NHS} | DOB: ${currentPatient.DOB} | Email: ${currentPatient.Email}`;
+
+        window.scrollTo(0, 0);
+
+    } catch (error) {
+        console.error('Error updating patient:', error);
+        statusMsg.textContent = 'An error occurred. Please try again.';
+        statusMsg.style.backgroundColor = '#fee';
+        statusMsg.style.color = 'red';
+        statusMsg.style.display = 'block';
+    }
+}
+
+//attach form listener
+document.getElementById('updateForm').addEventListener('submit', handleUpdate);
+
+//db check
+window.onload = async function() {
+    if (!hospitalDB.db) {
+        await hospitalDB.init();
+    }
+
+    checkAuth();
+};
+</script>
+
+</body>
+</html>
