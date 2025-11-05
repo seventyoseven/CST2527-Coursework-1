@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Treatment | Medicare</title>
+    <link rel="stylesheet" href="../main/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="../js/dbmanager.js"></script>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            box-sizing: border-box;
+        }
+
+        .container h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Patient Info Card */
+        .patient-info-card {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .patient-info-card h2 {
+            margin: 0 0 1rem 0;
+            font-size: 1.5rem;
+        }
+
+        .patient-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .patient-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .patient-info-item i {
+            font-size: 1.2rem;
+        }
+
+        /* Form Section */
+        .treatment-form-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section h3 {
+            color: #28a745;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input[readonly] {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+
+        /* Buttons */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Footer */
+        footer {
+            background: #120D0A;
+            color: #FFFFF0;
+            padding: 3rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .social-icons img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .copyright {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../main/index.html" class="logo-container">
+      <img src="../images/logo.png" alt="MediCare Logo" class="logo-image">
+      <span class="logo-text">MediCare</span>
+    </a>
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+
+  <ul class="nav-right">
+    <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
+    <li><a href="../main/index.html#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+        <a href="profile.html"><i class="fa fa-user"></i> My Profile</a>
+        <a href="#" onclick="logout()"><i class="fa fa-sign-out"></i> Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<div class="container">
+    <h1>Add Treatment Plan</h1>
+    <p><a href="appointments.html" class="back-link">← Back to Appointments</a></p>
+
+<!-- patient info -->
+    <div class="patient-info-card" id="patientInfoCard">
+        <h2><i class="fa fa-user-circle"></i> Patient Information</h2>
+        <div class="patient-info-grid" id="patientInfoGrid">
+            <p>Loading patient information...</p>
+        </div>
+    </div>
+
+    <!-- treatment -->
+    <div class="treatment-form-container">
+        <form id="treatmentForm">
+            <div class="form-section">
+                <h3><i class="fa fa-medkit"></i> Treatment Details</h3>
+                
+                <div class="form-group">
+                    <label>Select Medication <span class="required">*</span></label>
+                    <select id="medicineSelect" required>
+                        <option value="">-- Select Medicine --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Dosage <span class="required">*</span></label>
+                    <input type="text" id="dosage" required placeholder="e.g., 500mg">
+                </div>
+
+                <div class="form-group">
+                    <label>Frequency <span class="required">*</span></label>
+                    <input type="text" id="frequency" required placeholder="e.g., Twice daily, Every 8 hours">
+                </div>
+
+                <div class="form-group">
+                    <label>Duration</label>
+                    <input type="text" id="duration" placeholder="e.g., 7 days, 2 weeks">
+                </div>
+
+                <div class="form-group">
+                    <label>Special Instructions</label>
+                    <textarea id="instructions" placeholder="Special instructions for taking this medication"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Status <span class="required">*</span></label>
+                    <select id="status" required>
+                        <option value="Active">Active</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Discontinued">Discontinued</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='appointments.html'">
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save"></i> Save Treatment Plan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+        <br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+            <img src="../images/insta.png" alt="Instagram" width="70" height="70">
+            <img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+            <img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+            <img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+            <img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+let appointmentId = null;
+let appointmentData = null;
+let patientData = null;
+
+function checkAuth() {
+    const session = hospitalDB.getSession();
+    if (!session.userId || session.userType !== 'Doctor') {
+        window.location.replace('login.html');
+        return null;
+    }
+
+    const firstName = session.userName?.split(' ')[0] || 'Doctor';
+    document.getElementById('userNameDisplay').textContent = firstName;
+    return session;
+}
+
+function getAppointmentId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('appointment');
+}
+
+async function loadAppointmentData() {
+    appointmentId = getAppointmentId();
+    
+    if (!appointmentId) {
+        alert('No appointment specified');
+        window.location.href = 'appointments.html';
+        return;
+    }
+
+    try {
+        appointmentData = await hospitalDB.getDataById('appointments', parseInt(appointmentId));
+        
+        if (!appointmentData) {
+            alert('Appointment not found');
+            window.location.href = 'appointments.html';
+            return;
+        }
+
+        patientData = await hospitalDB.getDataById('patients', appointmentData.Patient_ID);
+
+        if (!patientData) {
+            alert('Patient not found');
+            window.location.href = 'appointments.html';
+            return;
+        }
+
+        displayPatientInfo();
+
+        loadMedicines();
+
+    } catch (error) {
+        console.error('Error loading appointment data:', error);
+        alert('Error loading appointment data');
+    }
+}
+
+function displayPatientInfo() {
+    const grid = document.getElementById('patientInfoGrid');
+    
+    const apptDate = new Date(appointmentData.Date);
+    const dateFormatted = apptDate.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    grid.innerHTML = `
+        <div class="patient-info-item">
+            <i class="fa fa-user"></i>
+            <div>
+                <strong>Name:</strong><br>
+                ${patientData.First} ${patientData.Last}
+            </div>
+        </div>
+        <div class="patient-info-item">
+            <i class="fa fa-id-card"></i>
+            <div>
+                <strong>NHS Number:</strong><br>
+                ${patientData.NHS}
+            </div>
+        </div>
+        <div class="patient-info-item">
+            <i class="fa fa-calendar"></i>
+            <div>
+                <strong>Appointment:</strong><br>
+                ${dateFormatted}
+            </div>
+        </div>
+        <div class="patient-info-item">
+            <i class="fa fa-phone"></i>
+            <div>
+                <strong>Contact:</strong><br>
+                ${patientData.Telephone}
+            </div>
+        </div>
+        ${appointmentData.Reason ? `
+        <div class="patient-info-item" style="grid-column: 1 / -1;">
+            <i class="fa fa-clipboard"></i>
+            <div>
+                <strong>Appointment Reason:</strong><br>
+                ${appointmentData.Reason}
+            </div>
+        </div>
+        ` : ''}
+    `;
+}
+
+// Load medicines
+async function loadMedicines() {
+    const medicines = await hospitalDB.getAllData('medicines');
+    const select = document.getElementById('medicineSelect');
+    
+    medicines.forEach(med => {
+        const option = document.createElement('option');
+        option.value = med.id;
+        option.textContent = med.Drug;
+        select.appendChild(option);
+    });
+}
+
+// Submit form
+document.getElementById('treatmentForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const session = checkAuth();
+    if (!session) return;
+
+    try {
+        const medicineId = document.getElementById('medicineSelect').value;
+        
+        if (!medicineId) {
+            alert('Please select a medication');
+            return;
+        }
+
+        const treatment = {
+            Patient_ID: patientData.id,
+            Doctor_ID: parseInt(session.userId),
+            Medicine_ID: parseInt(medicineId),
+            Appointment_ID: parseInt(appointmentId),
+            Dosage: document.getElementById('dosage').value,
+            Frequency: document.getElementById('frequency').value,
+            Duration: document.getElementById('duration').value,
+            Instructions: document.getElementById('instructions').value,
+            Status: document.getElementById('status').value,
+            Date: new Date().toISOString()
+        };
+
+        await hospitalDB.addData('treatments', treatment);
+
+        alert('Treatment plan saved successfully!');
+        window.location.href = 'appointments.html';
+
+    } catch (error) {
+        console.error('Error saving treatment:', error);
+        alert('Error saving treatment plan. Please try again.');
+    }
+});
+
+// Navigation
+function goPortal() {
+    const type = sessionStorage.getItem('userType');
+    if (type === 'Patient') window.location.href = '../patient/portal.html';
+    if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+    if (type === 'Admin') window.location.href = '../admin/portal.html';
+}
+
+function logout() {
+    hospitalDB.clearSession();
+    window.location.replace('login.html');
+}
+
+// Initialize
+window.onload = async function() {
+    if (!hospitalDB.db) {
+        await hospitalDB.init();
+    }
+    checkAuth();
+    await loadAppointmentData();
+};
+</script>
+
+</body>
+</html>
