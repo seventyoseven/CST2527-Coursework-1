@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Portal | Medicare</title>
+    <link rel="stylesheet" href="../main/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="../js/dbmanager.js"></script>
+</head>
+<body>
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../main/index.html" class="logo-container">
+      <img src="../images/logo.png" alt="MediCare Logo" class="logo-image">
+      <span class="logo-text">MediCare</span>
+    </a>
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+
+  <ul class="nav-right">
+    <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
+	<li><a href="../patient/appointment.html">Book Appointment</a></li>
+    <li><a href="../main/index.html#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+        <a href="profile.html"><i class="fa fa-user"></i> My Profile</a>
+        <a href="#" onclick="logout()"><i class="fa fa-sign-out"></i> Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+<div class="patient-portal">
+  <div class="container">
+    <h1>Patient Portal</h1>
+    <p class="portal-intro">Welcome, <strong id="patientWelcome">Patient</strong>! Access all your healthcare services in one place.</p>
+
+<!-- left side  -->
+    <div class="dashboard-layout">
+      <div class="quick-actions">
+        <a href="appointment.html" class="featured-card">
+          <i class="fa fa-calendar-plus-o"></i>
+          <h3>Book Appointment</h3>
+          <p>Schedule a new appointment with your preferred doctor</p>
+        </a>
+
+        <div class="mini-portal-cards">
+          <a href="prescriptions.html" class="mini-card">
+            <i class="fa fa-medkit"></i>
+            <div class="mini-card-content">
+              <h4>Treatments</h4>
+              <p>View prescriptions</p>
+            </div>
+          </a>
+
+          <a href="medicalrecords.html" class="mini-card">
+            <i class="fa fa-file-text-o"></i>
+            <div class="mini-card-content">
+              <h4>Medical Record</h4>
+              <p>Access your records</p>
+            </div>
+          </a>
+
+          <a href="profile.html" class="mini-card">
+            <i class="fa fa-user"></i>
+            <div class="mini-card-content">
+              <h4>My Profile</h4>
+              <p>View personal details</p>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- right side -->
+      <div class="appointments-preview">
+        <div class="appointments-header">
+          <h2>Upcoming Appointments</h2>
+          <a href="appointment.html" class="view-all-link">
+            View all <i class="fa fa-chevron-right"></i>
+          </a>
+        </div>
+
+        <div id="appointmentsLoading" style="text-align: center; padding: 20px; display: none;">
+          <i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #306BAC;"></i>
+          <p style="color: #666; margin-top: 10px;">Loading appointments...</p>
+        </div>
+
+        <div id="appointmentsList"></div>
+        
+        <div id="noAppointments" class="no-appointments" style="display: none;">
+          <i class="fa fa-calendar-o"></i>
+          <p>No upcoming appointments scheduled.</p>
+          <a href="appointment.html" class="book-first-btn">
+            Book Your First Appointment
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer style="margin-top:50px;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+        <br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+            <img src="../images/insta.png" alt="Instagram" width="70" height="70">
+            <img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+            <img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+            <img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+            <img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+function checkAuth() {
+    const session = hospitalDB.getSession();
+
+    if (!session.userId || session.userType !== 'Patient') {
+        window.location.replace('login.html');
+        return false;
+    }
+
+    const fullName = session.userName || 'Patient';
+    const firstName = fullName.split(' ')[0];
+
+    document.getElementById('patientWelcome').textContent = fullName;
+    document.getElementById('userNameDisplay').textContent = firstName;
+
+    return session.patientId;
+}
+
+function goPortal() {
+    const type = sessionStorage.getItem('userType');
+    if (type === 'Patient') window.location.href = '../patient/portal.html';
+    if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+    if (type === 'Admin') window.location.href = '../admin/portal.html';
+}
+
+function logout() {
+    hospitalDB.clearSession();
+    window.location.replace('login.html');
+}
+
+async function loadUpcomingAppointments() {
+    const patientId = checkAuth();
+    if (!patientId) return;
+
+    const loadingDiv = document.getElementById('appointmentsLoading');
+    const listDiv = document.getElementById('appointmentsList');
+    const noDataDiv = document.getElementById('noAppointments');
+
+    loadingDiv.style.display = 'block';
+
+    try {
+        const appointments = await hospitalDB.getPatientAppointments(parseInt(patientId));
+
+        loadingDiv.style.display = 'none';
+
+        if (!appointments || appointments.length === 0) {
+            noDataDiv.style.display = 'block';
+            return;
+        }
+
+        // filter for appointments
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        const upcoming = appointments.filter(appt => {
+            const apptDate = new Date(appt.Date);
+            return apptDate >= now;
+        });
+
+        if (upcoming.length === 0) {
+            noDataDiv.style.display = 'block';
+            return;
+        }
+
+        // sort by date (first 3)
+        upcoming.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+        const displayAppointments = upcoming.slice(0, 3);
+
+        listDiv.innerHTML = '';
+
+        for (const appt of displayAppointments) {
+            const doc = await hospitalDB.getDataById('doctors', appt.Doctor_ID);
+            const dateObj = new Date(appt.Date);
+            
+            const dateFormatted = dateObj.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+
+            const timeFormatted = dateObj.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const status = appt.Status || 'Pending';
+            let statusClass = 'status-pending';
+            if (status === 'Confirmed') statusClass = 'status-confirmed';
+            else if (status === 'Completed') statusClass = 'status-completed';
+
+            const card = document.createElement('div');
+            card.className = 'appointment-item';
+            card.innerHTML = `
+                <div class="appointment-doctor">
+                    Dr. ${doc?.first_name || ''} ${doc?.last_name || ''}
+                </div>
+                <div class="appointment-details">
+                    <div class="appointment-detail">
+                        <i class="fa fa-calendar"></i>
+                        <span>${dateFormatted}</span>
+                    </div>
+                    <div class="appointment-detail">
+                        <i class="fa fa-clock-o"></i>
+                        <span>${timeFormatted}</span>
+                    </div>
+                    <div class="appointment-detail">
+                        <span class="status-badge ${statusClass}">${status}</span>
+                    </div>
+                </div>
+            `;
+
+            listDiv.appendChild(card);
+        }
+
+    } catch (error) {
+        console.error('Error loading appointments:', error);
+        loadingDiv.style.display = 'none';
+        noDataDiv.style.display = 'block';
+    }
+}
+
+window.onload = async function() {
+    if (!hospitalDB.db) {
+        await hospitalDB.init();
+    }
+    await loadUpcomingAppointments();
+};
+</script>
+
+</body>
+</html>
