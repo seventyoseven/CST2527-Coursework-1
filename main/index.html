@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MediCare | Homepage</title>
+	<link rel="stylesheet" href="styles.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="../js/dbmanager.js"></script>
+</head>
+<body>
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="logo-container">
+      <img src="../images/logo.png" alt="MediCare Logo" class="logo-image">
+      <span class="logo-text">MediCare</span>
+    </a>
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="../patient/login.html">Book Appointment</a></li>
+    <li><a href="#about">About Us</a></li>
+    <li><a href="contact.html">Contact Us</a></li>
+
+	<li class="nav-item dropdown">
+		<a href="#" class="login-btn">
+			<span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
+		</a>
+	<div class="dropdown-menu" id="loginDropdown">
+		<a href="../patient/login.html"><i class="fa fa-user"></i> Patient Portal</a>
+		<a href="../doctor/login.html"><i class="fa fa-user-md"></i> Doctor Portal</a>
+	  </div>
+	</li>
+  </ul>
+ </nav>
+ 
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content-wrapper">
+        <h1>Welcome to MediCare</h1>
+        <div class="hero-buttons">
+            <a href="#about" class="hero-btn hero-btn-secondary">
+                Learn more <i class="fa fa-angle-right"></i>
+            </a>
+            <a href="../patient/login.html" class="hero-btn hero-btn-primary">
+                Book appointment
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="stats-container">
+        <div class="stat-item">
+            <div class="stat-number">15+</div>
+            <div class="stat-label">Years of Excellence</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">Expert Doctors</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">10K+</div>
+            <div class="stat-label">Happy Patients</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Emergency Care</div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section" id="about">
+    <div class="features-container">
+        <div class="features-header">
+            <h2>Why Choose MediCare?</h2>
+            <p>Comprehensive healthcare solutions designed around you</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fa fa-shield"></i>
+                </div>
+                <h3>Secure & GDPR Compliant</h3>
+                <p>Your medical data is protected with industry-leading encryption and strict compliance with GDPR regulations.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fa fa-calendar-check-o"></i>
+                </div>
+                <h3>Easy Online Booking</h3>
+                <p>Schedule appointments with your preferred specialists quickly and conveniently through our digital platform.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fa fa-file-text-o"></i>
+                </div>
+                <h3>Digital Medical Records</h3>
+                <p>Access your complete medical history, test results, and prescriptions anytime, anywhere, securely online.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fa fa-user-md"></i>
+                </div>
+                <h3>Expert Specialists</h3>
+                <p>Our team of highly qualified doctors and specialists are dedicated to providing exceptional patient care.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fa fa-clock-o"></i>
+                </div>
+                <h3>24/7 Emergency Care</h3>
+                <p>Round-the-clock emergency services with immediate access to medical professionals when you need them most.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fa fa-hospital-o"></i>
+                </div>
+                <h3>Modern Facilities</h3>
+                <p>State-of-the-art medical equipment and comfortable facilities designed for optimal patient care and recovery.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="services-section-modern">
+    <div class="services-container">
+        <h2>Our Medical Services</h2>
+        <div class="services-grid">
+            <div class="service-item-modern">
+                <i class="fa fa-user-md"></i>
+                <p>Clinical Psychology</p>
+            </div>
+            <div class="service-item-modern">
+                <i class="fa fa-tooth"></i>
+                <p>Dentistry</p>
+            </div>
+            <div class="service-item-modern">
+                <i class="fa fa-stethoscope"></i>
+                <p>Dermatology</p>
+            </div>
+            <div class="service-item-modern">
+                <i class="fa fa-apple"></i>
+                <p>Dietetics</p>
+            </div>
+            <div class="service-item-modern">
+                <i class="fa fa-heartbeat"></i>
+                <p>Cardiology</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-container">
+        <h2>Ready to Get Started?</h2>
+        <p>Join thousands of patients who trust MediCare for their healthcare needs</p>
+        <a href="../patient/login.html" class="hero-btn hero-btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+            <i class="fa fa-calendar"></i> Book Your Appointment
+        </a>
+        <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e0e0e0;">
+            <p style="font-size: 0.9rem; color: #999;">Administrator Access</p>
+            <a href="../admin/login.html" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">
+                <i class="fa fa-lock"></i> Admin Portal
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="margin-top:0;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+		<br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+			<img src="../images/insta.png" alt="Instagram" width="70" height="70">
+			<img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+			<img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+			<img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+			<img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+function logout() {
+    hospitalDB.clearSession();
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/main/')) {
+        window.location.replace('index.html');
+    } else {
+        window.location.replace('main/index.html');
+    }
+}
+
+function goPortal() {
+    const type = sessionStorage.getItem('userType');
+    if (type === 'Patient') window.location.href = '../patient/portal.html';
+    if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+    if (type === 'Admin') window.location.href = '../admin/portal.html';
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const session = hospitalDB.getSession();
+    const dropdown = document.getElementById("loginDropdown");
+
+    if (session && session.userName) {
+        document.getElementById('userNameDisplay').textContent =
+            session.userName.split(' ')[0];
+
+        dropdown.innerHTML = `
+            <a href="#" onclick="goPortal()"><i class="fa fa-home"></i> Portal</a>
+            <a href="#" onclick="logout()"><i class="fa fa-sign-out"></i> Logout</a>
+        `;
+    }
+    else {
+        dropdown.innerHTML = `
+            <a href="../patient/login.html"><i class="fa fa-user"></i> Patient Portal</a>
+            <a href="../doctor/login.html"><i class="fa fa-user-md"></i> Doctor Portal</a>
+        `;
+    }
+});
+</script>
+
+</body>
+</html>
