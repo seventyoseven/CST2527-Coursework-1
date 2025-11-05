@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointments | Medicare</title>
+    <link rel="stylesheet" href="../main/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="../js/dbmanager.js"></script>
+</head>
+<body>
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../main/index.html" class="logo-text">MediCare</a>
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="appointment.html">Book Appointment</a></li>
+    <li><a href="#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <!-- LOGIN DROPDOWN -->
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+	    <a href="#" onclick="goPortal()">Portal</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+  <div class="patient-portal">
+    <div class="container">
+      <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
+      <h1>Appointments</h1>
+
+      <!-- Book New Appointment Section -->
+      <div class="section">
+        <h2>Book an Appointment</h2>
+        <div id="bookingMessage" style="margin-bottom: 15px; display: none;"></div>
+        
+        <form class="appointment-form" id="appointmentForm">
+          <div class="form-group">
+            <label for="doctor">Select Doctor</label>
+            <select id="doctor" name="doctor" required>
+              <option value="">-- Loading Doctors --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="date">Select Date</label>
+            <input type="date" id="date" name="date" required>
+          </div>
+
+          <div class="form-group">
+            <label for="time">Select Time</label>
+            <input type="time" id="time" name="time" required>
+          </div>
+
+          <div class="form-group">
+            <label for="reason">Reason for Visit</label>
+            <textarea id="reason" name="reason" rows="3" placeholder="e.g., annual checkup, follow-up, etc." required></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary">Confirm Appointment</button>
+        </form>
+      </div>
+
+      <!-- My Appointments Section -->
+      <div class="section">
+        <h2>My Appointments</h2>
+        <div id="appointmentsLoading" style="text-align: center; padding: 20px;">
+          <i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i>
+          <p>Loading appointments...</p>
+        </div>
+        <div id="appointmentsList" class="appointments-list" style="display: none;"></div>
+        <p id="noAppointments" class="no-data" style="display: none;">No appointments scheduled.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+<footer style="margin-top:50px;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+        <br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+            <img src="../images/insta.png" alt="Instagram" width="70" height="70">
+            <img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+            <img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+            <img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+            <img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+//authy check
+function checkAuth() {
+    const session = hospitalDB.getSession();
+
+    if (!session.userId || session.userType !== "Patient") {
+        window.location.replace("login.html");
+        return null;
+    }
+
+    document.getElementById("userNameDisplay").textContent =
+        session.userName?.split(" ")[0] || "Patient";
+
+    return session.patientId;
+}
+
+//logout
+function logout() {
+    hospitalDB.clearSession();
+    window.location.replace("login.html");
+}
+
+//dropdown update
+function goPortal() {
+    const type = sessionStorage.getItem('userType');
+
+    if (type === 'Patient') window.location.href = '../patient/portal.html';
+    if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+    if (type === 'Admin') window.location.href = '../admin/portal.html';
+}
+
+//load doctors
+async function loadDoctors() {
+    const doctors = await hospitalDB.getAllData("doctors");
+    const select = document.getElementById("doctor");
+
+    select.innerHTML = '<option value="">-- Choose Doctor --</option>';
+
+    doctors.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d.id;
+        opt.textContent = `Dr. ${d.first_name} ${d.last_name} (${d.gender})`;
+        select.appendChild(opt);
+    });
+}
+
+//load appointments
+async function loadAppointments() {
+    const patientId = checkAuth();
+    if (!patientId) return;
+
+    const appointments = await hospitalDB.getPatientAppointments(parseInt(patientId));
+
+    const list = document.getElementById("appointmentsList");
+    const noData = document.getElementById("noAppointments");
+
+    document.getElementById("appointmentsLoading").style.display = "none";
+
+    if (!appointments || appointments.length === 0) {
+        noData.style.display = "block";
+        return;
+    }
+
+    list.innerHTML = "";
+
+    //sort latest first
+    appointments.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+    for (const appt of appointments) {
+        const doc = await hospitalDB.getDataById("doctors", appt.Doctor_ID);
+
+        const card = document.createElement("div");
+        card.className = "appointment-card";
+
+        const dateObj = new Date(appt.Date);
+        const dateFormatted = dateObj.toLocaleString("en-GB", {
+            day: "2-digit", month: "long", year: "numeric",
+            hour: "2-digit", minute: "2-digit"
+        });
+
+        card.innerHTML = `
+            <h3>Dr. ${doc?.first_name ?? ""} ${doc?.last_name ?? ""}</h3>
+            <p><strong>Date:</strong> ${dateFormatted}</p>
+            <p><strong>Status:</strong> ${appt.Status ?? "Pending"}</p>
+        `;
+
+        list.appendChild(card);
+    }
+
+    list.style.display = "grid";
+}
+
+//book appointments
+async function handleAppointmentSubmit(e) {
+    e.preventDefault();
+
+    const patientId = checkAuth();
+    if (!patientId) return;
+
+    const doctorId = parseInt(document.getElementById("doctor").value);
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
+    const reason = document.getElementById("reason").value;
+
+    const message = document.getElementById("bookingMessage");
+
+    if (!doctorId) {
+        message.textContent = "Please select a doctor.";
+        message.style.color = "red";
+        message.style.display = "block";
+        return;
+    }
+
+    const dateTime = new Date(`${date}T${time}`).toISOString();
+
+    const appt = {
+        Patient_ID: parseInt(patientId),
+        Doctor_ID: doctorId,
+        Date: dateTime,
+        Status: "Pending",
+        Reason: reason
+    };
+
+    await hospitalDB.addData("appointments", appt);
+
+    message.textContent = "Appointment booked successfully!";
+    message.style.color = "green";
+    message.style.display = "block";
+
+    document.getElementById("appointmentForm").reset();
+
+    setTimeout(() => {
+        message.style.display = "none";
+        loadAppointments();
+    }, 1500);
+}
+
+//db check
+window.onload = async function () {
+    if (!hospitalDB.db) {
+        await hospitalDB.init();
+    }
+
+    const dateInput = document.getElementById("date");
+    dateInput.min = new Date().toISOString().split("T")[0];
+
+    document.getElementById("appointmentForm").onsubmit = handleAppointmentSubmit;
+
+    const patientId = checkAuth();
+    if (patientId) {
+        loadDoctors();
+        loadAppointments();
+    }
+};
+</script>
+
+
+</body>
+</html>
