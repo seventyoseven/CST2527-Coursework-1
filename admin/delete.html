@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delete Patient | Medicare</title>
+  <link rel="stylesheet" href="../main/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="../js/dbmanager.js"></script>
+</head>
+<body style="background-color: #f5f7fa;">
+
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../main/index.html" class="logo-text">MediCare</a>
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
+    <li><a href="../main/index.html#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Admin</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+        <a href="portal.html">Portal</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<div class="admin-form-container">
+    <div class="page-header">
+        <h1><i class="fa fa-trash"></i> Delete Patient Record</h1>
+        <p>Permanently remove a patient from the system. This action cannot be undone.</p>
+        <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
+    </div>
+
+    <div class="form-section">
+        <div id="statusMessage" class="status-message"></div>
+
+        <form id="deleteForm">
+            <div class="form-row">
+                <label><i class="fa fa-search"></i> NHS Number</label>
+                <input type="text" id="nhsNumber" placeholder="Enter patient's NHS number (10 digits)" maxlength="10" required />
+                <button type="button" onclick="findPatient()" class="btn-secondary" style="margin-top: 10px; width: auto;">
+                    <i class="fa fa-search"></i> Find Patient
+                </button>
+            </div>
+
+            <div id="patientInfoSection" style="display: none; margin-top: 20px;">
+                <div class="patient-info-box">
+                    <h3><i class="fa fa-user"></i> Patient Found</h3>
+                    <p id="patientName" style="font-size: 1.1rem; font-weight: bold; color: #2c3e50; margin: 10px 0;"></p>
+                    <p id="patientDetails" style="color: #666; line-height: 1.6;"></p>
+                </div>
+                
+                <div class="warning-box">
+                    <p><i class="fa fa-exclamation-triangle"></i> WARNING: This action cannot be undone!</p>
+                    <p style="margin-top: 5px; font-weight: 400; font-size: 0.9rem;">
+                        Deleting a patient will permanently remove all their records from the database.
+                    </p>
+                </div>
+
+                <div style="margin-top: 15px; background: white; padding: 12px; border-radius: 6px; border: 1px solid #ddd;">
+                    <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                        <input type="checkbox" id="confirmCheckbox" style="margin-right: 10px; width: auto; cursor: pointer;">
+                        <span style="color: #333; font-weight: 500;">I understand this action is permanent and cannot be undone</span>
+                    </label>
+                </div>
+
+                <button type="submit" id="deleteButton" class="btn-primary delete-btn" style="margin-top: 15px;" disabled>
+                    <i class="fa fa-trash"></i> Delete Patient Permanently
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+        <br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+            <img src="../images/insta.png" alt="Instagram" width="70" height="70">
+            <img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+            <img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+            <img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+            <img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+var currentPatient = null;
+
+function checkAuth() {
+    const session = hospitalDB.getSession();
+
+    if (!session.userId || session.userType !== "Admin") {
+        window.location.replace("login.html");
+        return false;
+    }
+
+    document.getElementById("userNameDisplay").textContent =
+        session.userName?.split(" ")[0] || "Admin";
+
+    return true;
+}
+
+function logout() {
+    hospitalDB.clearSession();
+    window.location.replace("login.html");
+}
+
+async function findPatient() {
+    const statusMsg = document.getElementById('statusMessage');
+    const nhs = document.getElementById('nhsNumber').value.trim();
+
+    statusMsg.style.display = 'none';
+    document.getElementById('patientInfoSection').style.display = 'none';
+    document.getElementById('confirmCheckbox').checked = false;
+    document.getElementById('deleteButton').disabled = true;
+
+    if (!nhs) {
+        statusMsg.textContent = 'Please enter an NHS number';
+        statusMsg.className = 'status-message error';
+        statusMsg.style.display = 'block';
+        return;
+    }
+
+    try {
+        if (!hospitalDB.db) {
+            await hospitalDB.init();
+        }
+
+        const patient = await hospitalDB.getDataByIndex('patients', 'NHS', nhs);
+
+        if (!patient) {
+            statusMsg.textContent = 'No patient found with this NHS number';
+            statusMsg.className = 'status-message error';
+            statusMsg.style.display = 'block';
+            return;
+        }
+
+        currentPatient = patient;
+
+        document.getElementById('patientName').textContent = `${patient.First} ${patient.Last}`;
+        document.getElementById('patientDetails').innerHTML = 
+            `<strong>NHS:</strong> ${patient.NHS}<br>` +
+            `<strong>DOB:</strong> ${patient.DOB}<br>` +
+            `<strong>Email:</strong> ${patient.Email}<br>` +
+            `<strong>Telephone:</strong> ${patient.Telephone}`;
+        
+        document.getElementById('patientInfoSection').style.display = 'block';
+
+    } catch (error) {
+        console.error('Error finding patient:', error);
+        statusMsg.textContent = 'An error occurred. Please try again.';
+        statusMsg.className = 'status-message error';
+        statusMsg.style.display = 'block';
+    }
+}
+
+document.getElementById('confirmCheckbox').addEventListener('change', function() {
+    document.getElementById('deleteButton').disabled = !this.checked;
+});
+
+async function handleDelete(event) {
+    event.preventDefault();
+
+    const statusMsg = document.getElementById('statusMessage');
+
+    if (!currentPatient) {
+        statusMsg.textContent = 'Please find a patient first';
+        statusMsg.className = 'status-message error';
+        statusMsg.style.display = 'block';
+        return;
+    }
+
+    if (!document.getElementById('confirmCheckbox').checked) {
+        statusMsg.textContent = 'Please confirm deletion by checking the box';
+        statusMsg.className = 'status-message error';
+        statusMsg.style.display = 'block';
+        return;
+    }
+
+    const finalConfirm = confirm(
+        `Are you absolutely sure you want to delete:\n\n` +
+        `${currentPatient.First} ${currentPatient.Last}\n` +
+        `NHS: ${currentPatient.NHS}\n\n` +
+        `This action CANNOT be undone!`
+    );
+
+    if (!finalConfirm) {
+        return;
+    }
+
+    try {
+        if (!hospitalDB.db) {
+            await hospitalDB.init();
+        }
+
+        await hospitalDB.deleteData('patients', currentPatient.id);
+
+        statusMsg.innerHTML = `<strong><i class="fa fa-check-circle"></i> Patient ${currentPatient.First} ${currentPatient.Last} has been deleted successfully.</strong>`;
+        statusMsg.className = 'status-message success';
+        statusMsg.style.display = 'block';
+
+        document.getElementById('nhsNumber').value = '';
+        document.getElementById('patientInfoSection').style.display = 'none';
+        currentPatient = null;
+
+        window.scrollTo(0, 0);
+
+    } catch (error) {
+        console.error('Error deleting patient:', error);
+        statusMsg.textContent = 'An error occurred. Please try again.';
+        statusMsg.className = 'status-message error';
+        statusMsg.style.display = 'block';
+    }
+}
+
+document.getElementById('deleteForm').addEventListener('submit', handleDelete);
+
+window.onload = async function() {
+    if (!hospitalDB.db) {
+        await hospitalDB.init();
+    }
+
+    checkAuth();
+};
+</script>
+
+</body>
+</html>
