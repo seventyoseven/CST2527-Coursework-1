@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medical Records | Medicare</title>
@@ -9,8 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="../js/dbmanager.js"></script>
 </head>
+	
 <body>
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -25,13 +27,13 @@
     </select>
   </div>
 
-
   <ul class="nav-right">
     <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
 	<li><a href="../patient/appointment.html">Book Appointment</a></li>
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+    <!-- Dropdown menu for user profile and logout -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -49,6 +51,7 @@
       <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
       <h1>Medical Records</h1>
 
+		<!-- Displaying patient notes and loading -->
       <div class="section">
         <div id="notesLoading" style="text-align: center; padding: 20px;">
           <i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i>
@@ -83,6 +86,7 @@
 </footer>
 
 <script>
+// Prevents XSS by sanitizing special characters
 function escapeHTML(text) {
     if (!text) return '';
     return text
@@ -95,7 +99,7 @@ function escapeHTML(text) {
 
 var db;
 
-// Auth check
+// Autherization check of session and ensures only patients can access page
 function checkAuth() {
     var userId = sessionStorage.getItem('userId');
     var userType = sessionStorage.getItem('userType');
@@ -115,7 +119,7 @@ function checkAuth() {
     return patientId;
 }
 
-// Logout
+// Upon logout - clears session data and redirects to login page
 function logout() {
     sessionStorage.removeItem('userId');
     sessionStorage.removeItem('userType');
@@ -238,4 +242,5 @@ window.logout = logout;
 </script>
 
 </body>
+
 </html>
