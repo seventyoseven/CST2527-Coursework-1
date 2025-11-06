@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Records | Medicare</title>
+    <link rel="stylesheet" href="../main/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="../js/dbmanager.js"></script>
+</head>
+<body>
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../main/index.html" class="logo-container">
+      <img src="../images/logo.png" alt="MediCare Logo" class="logo-image">
+      <span class="logo-text">MediCare</span>
+    </a>
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+
+  <ul class="nav-right">
+    <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
+	<li><a href="../patient/appointment.html">Book Appointment</a></li>
+    <li><a href="../main/index.html#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+        <a href="profile.html"><i class="fa fa-user"></i> My Profile</a>
+        <a href="#" onclick="logout()"><i class="fa fa-sign-out"></i> Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+  <div class="patient-portal">
+    <div class="container">
+      <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
+      <h1>Medical Records</h1>
+
+      <div class="section">
+        <div id="notesLoading" style="text-align: center; padding: 20px;">
+          <i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i>
+          <p>Loading medical records...</p>
+        </div>
+
+        <div class="records-list" id="notesList" style="display: none;"></div>
+        <p id="noNotes" class="no-data" style="display: none;">No medical records available.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+<footer style="margin-top:50px;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+        <br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+            <img src="../images/insta.png" alt="Instagram" width="70" height="70">
+            <img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+            <img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+            <img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+            <img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+function escapeHTML(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+var db;
+
+// Auth check
+function checkAuth() {
+    var userId = sessionStorage.getItem('userId');
+    var userType = sessionStorage.getItem('userType');
+    var userName = sessionStorage.getItem('userName');
+    var patientId = sessionStorage.getItem('patientId');
+    
+    if (!userId || userType !== 'Patient') {
+        window.location.replace('login.html');
+        return null;
+    }
+    
+    if (userName) {
+        var firstName = userName.split(' ')[0];
+        document.getElementById('userNameDisplay').textContent = firstName;
+    }
+    
+    return patientId;
+}
+
+// Logout
+function logout() {
+    sessionStorage.removeItem('userId');
+    sessionStorage.removeItem('userType');
+    sessionStorage.removeItem('userName');
+    sessionStorage.removeItem('patientId');
+    sessionStorage.removeItem('patientNHS');
+    window.location.replace('login.html');
+}
+
+// Dropdown update
+function goPortal() {
+    const type = sessionStorage.getItem('userType');
+    if (type === 'Patient') window.location.href = '../patient/portal.html';
+    if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+    if (type === 'Admin') window.location.href = '../admin/portal.html';
+}
+
+// Load medical notes - FIXED VERSION
+async function loadMedicalNotes() {
+    var patientId = checkAuth();
+    if (!patientId) return;
+    
+    if (!db) db = window.db;
+    if (!db) {
+        console.log('Database not ready, retrying...');
+        setTimeout(loadMedicalNotes, 100);
+        return;
+    }
+    
+    try {
+        // Use getAllData and filter manually instead of index
+        var transaction = db.transaction(['medical_notes', 'doctors'], 'readonly');
+        var notesStore = transaction.objectStore('medical_notes');
+        var allNotesRequest = notesStore.getAll();
+        
+        allNotesRequest.onsuccess = function(event) {
+            var allNotes = event.target.result;
+            
+            // Filter notes for this patient
+            var notes = allNotes.filter(note => 
+                note.Patient_ID === parseInt(patientId)
+            );
+            
+            document.getElementById('notesLoading').style.display = 'none';
+            
+            if (notes.length > 0) {
+                // Sort by date (newest first)
+                notes.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+                var notesList = document.getElementById('notesList');
+                notesList.innerHTML = '';
+
+                notes.forEach(note => {
+                    createNoteCard(note, notesList, transaction);
+                });
+
+                notesList.style.display = 'grid';
+            } else {
+                document.getElementById('noNotes').style.display = 'block';
+            }
+        };
+        
+        allNotesRequest.onerror = function(event) {
+            console.error('Error loading notes:', event.target.error);
+            document.getElementById('notesLoading').innerHTML = 
+                '<p style="color:red;">Error loading medical records. Please try again.</p>';
+        };
+        
+    } catch (error) {
+        console.error('Error in loadMedicalNotes:', error);
+        document.getElementById('notesLoading').innerHTML = 
+            '<p style="color:red;">Error loading medical records. Please try again.</p>';
+    }
+}
+
+// Create note card
+function createNoteCard(note, container, transaction) {
+    var card = document.createElement('div');
+    card.className = 'record-card';
+    
+    var doctorStore = transaction.objectStore('doctors');
+    var doctorRequest = doctorStore.get(note.Doctor_ID);
+    
+    doctorRequest.onsuccess = function(e) {
+        var doctor = e.target.result;
+        var doctorName = doctor ? 'Dr. ' + doctor.first_name + ' ' + doctor.last_name : 
+                                  (note.doctorName || 'N/A');
+
+        var dateObj = new Date(note.Date);
+        var formattedDate = dateObj.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        card.innerHTML = `
+            <h3>${escapeHTML(note.Diagnosis || note.notesReason || 'Medical Note')}</h3>
+            <p><strong>Date:</strong> ${formattedDate}</p>
+            <p><strong>Doctor:</strong> ${doctorName}</p>
+            ${note.doctorSpeciality ? `<p><strong>Department:</strong> ${escapeHTML(note.doctorSpeciality)}</p>` : ''}
+            ${note.notesAssessment ? `<p><strong>Assessment:</strong> ${escapeHTML(note.notesAssessment)}</p>` : ''}
+            ${note.notesTreatment ? `<p><strong>Treatment:</strong> ${escapeHTML(note.notesTreatment)}</p>` : ''}
+            ${note.Treatment_Notes ? `<p><strong>Notes:</strong> ${escapeHTML(note.Treatment_Notes)}</p>` : ''}
+            ${note.notesMedication ? `<p><strong>Medications:</strong> ${escapeHTML(note.notesMedication)}</p>` : ''}
+            ${note.notesDosage ? `<p><strong>Dosage:</strong> ${escapeHTML(note.notesDosage)}</p>` : ''}
+            ${note.notesAdd ? `<p><strong>Additional Notes:</strong> ${escapeHTML(note.notesAdd)}</p>` : ''}
+        `;
+
+        container.appendChild(card);
+    };
+}
+
+window.onload = function() {
+    if (checkAuth()) {
+        loadMedicalNotes();
+    }
+};
+
+window.logout = logout;
+</script>
+
+</body>
+</html>
