@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Patient | Medicare</title>
+  <link rel="stylesheet" href="../main/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="../js/dbmanager.js"></script>
+</head>
+<body style="background-color: #f5f7fa;">
+
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../main/index.html" class="logo-container">
+      <img src="../images/logo.png" alt="MediCare Logo" class="logo-image">
+      <span class="logo-text">MediCare</span>
+    </a>
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
+    <li><a href="../main/index.html#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Admin</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+        <a href="portal.html">Portal</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<div class="admin-form-container">
+    <div class="page-header">
+        <h1><i class="fa fa-user-plus"></i> Add New Patient</h1>
+        <p>Register a new patient into the system with their medical and contact information.</p>
+        <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
+    </div>
+
+    <div class="form-section">
+        <div id="statusMessage" class="status-message"></div>
+
+        <form id="addPatientForm">
+            <div class="form-row">
+                <label>Title</label>
+                <select id="title" required>
+                    <option value="">-- Select Title --</option>
+                    <option value="Mr">Mr</option>
+                    <option value="Mrs">Mrs</option>
+                    <option value="Ms">Ms</option>
+                    <option value="Miss">Miss</option>
+                    <option value="Dr">Dr</option>
+                    <option value="Rev">Rev</option>
+                </select>
+            </div>
+
+            <div class="two-column">
+                <div class="form-row">
+                    <label>First Name</label>
+                    <input type="text" id="firstName" placeholder="Enter first name" required />
+                </div>
+                <div class="form-row">
+                    <label>Last Name</label>
+                    <input type="text" id="lastName" placeholder="Enter last name" required />
+                </div>
+            </div>
+
+            <div class="two-column">
+                <div class="form-row">
+                    <label>Date of Birth</label>
+                    <input type="date" id="dob" required />
+                </div>
+                <div class="form-row">
+                    <label>Gender</label>
+                    <select id="gender" required>
+                        <option value="">-- Select Gender --</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label>NHS Number</label>
+                <input type="text" id="nhs" placeholder="Enter NHS number (10 digits)" maxlength="10" required />
+            </div>
+
+            <div class="form-row">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="Enter email address" required />
+            </div>
+
+            <div class="two-column">
+                <div class="form-row">
+                    <label>Telephone</label>
+                    <input type="tel" id="telephone" placeholder="Enter phone number" required />
+                </div>
+                <div class="form-row">
+                    <label>Address</label>
+                    <input type="text" id="address" placeholder="Enter full address" required />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" required />
+                <small style="color: #666; display: block; margin-top: 5px;">
+                    Password must be at least 8 characters with uppercase, lowercase, number, and special character (!@#$%^&*)
+                </small>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                <i class="fa fa-plus-circle"></i> Add Patient
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+        <br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+            <img src="../images/insta.png" alt="Instagram" width="70" height="70">
+            <img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+            <img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+            <img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+            <img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+// Function to sanitize input by replacing special characters with HTML entities
+function sanitizeInput(input) {
+    var sanitized = input
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;")
+        .replace(/\//g, "&#x2F;");
+    return sanitized;
+}
+
+function checkAuth() {
+    const session = hospitalDB.getSession();
+
+    if (!session.userId || session.userType !== "Admin") {
+        window.location.replace("login.html");
+        return false;
+    }
+
+    document.getElementById("userNameDisplay").textContent =
+        session.userName?.split(" ")[0] || "Admin";
+
+    return true;
+}
+
+function logout() {
+    hospitalDB.clearSession();
+    window.location.replace("login.html");
+}
+
+async function handleAddPatient(event) {
+    event.preventDefault();
+
+    const statusMsg = document.getElementById('statusMessage');
+    statusMsg.style.display = 'none';
+
+    try {
+        if (!hospitalDB.db) {
+            await hospitalDB.init();
+        }
+
+        const title = document.getElementById('title').value;
+        const firstName = sanitizeInput(document.getElementById('firstName').value.trim());
+        const lastName = sanitizeInput(document.getElementById('lastName').value.trim());
+        const dob = document.getElementById('dob').value;
+        const gender = document.getElementById('gender').value;
+        const nhs = document.getElementById('nhs').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const telephone = document.getElementById('telephone').value.trim();
+        const address = sanitizeInput(document.getElementById('address').value.trim());
+        const password = document.getElementById('password').value;
+
+        // Validate NHS number
+        if (nhs.length !== 10 || !/^\d+$/.test(nhs)) {
+            statusMsg.textContent = 'NHS number must be exactly 10 digits';
+            statusMsg.className = 'status-message error';
+            statusMsg.style.display = 'block';
+            return;
+        }
+
+        // Validate email
+        if (!hospitalDB.validateEmail(email)) {
+            statusMsg.textContent = 'Please enter a valid email address';
+            statusMsg.className = 'status-message error';
+            statusMsg.style.display = 'block';
+            return;
+        }
+
+        // Validate password
+        const passwordCheck = hospitalDB.validatePassword(password);
+        if (!passwordCheck.valid) {
+            statusMsg.textContent = passwordCheck.message;
+            statusMsg.className = 'status-message error';
+            statusMsg.style.display = 'block';
+            return;
+        }
+
+        const existingPatient = await hospitalDB.getDataByIndex('patients', 'NHS', nhs);
+        if (existingPatient) {
+            statusMsg.textContent = 'A patient with this NHS number already exists';
+            statusMsg.className = 'status-message error';
+            statusMsg.style.display = 'block';
+            return;
+        }
+
+        const existingEmail = await hospitalDB.getDataByIndex('patients', 'Email', email);
+        if (existingEmail) {
+            statusMsg.textContent = 'A patient with this email already exists';
+            statusMsg.className = 'status-message error';
+            statusMsg.style.display = 'block';
+            return;
+        }
+
+        const encryptedPassword = hospitalDB.encryptData(password);
+
+        const dobFormatted = new Date(dob).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).replace(/\//g, '/');
+
+        const newPatient = {
+            Title: title,
+            First: firstName,
+            Last: lastName,
+            DOB: dobFormatted,
+            Gender: gender,
+            NHS: nhs,
+            Email: email,
+            Telephone: telephone,
+            Address: address,
+            Password: encryptedPassword,
+            PlainPassword: password
+        };
+
+        await hospitalDB.addData('patients', newPatient);
+
+        statusMsg.innerHTML = `
+            <strong><i class="fa fa-check-circle"></i> Patient added successfully!</strong><br>
+            <span style="font-size: 0.9rem; margin-top: 8px; display: block;">
+                <strong>Patient:</strong> ${firstName} ${lastName}<br>
+                <strong>Email:</strong> ${email}<br>
+                <strong>Password:</strong> <code style="background: #fff; padding: 2px 6px; border-radius: 3px; color: #e74c3c;">${password}</code><br>
+                <em style="color: #666;">(Please inform the patient to change this password on first login)</em>
+            </span>
+        `;
+        statusMsg.className = 'status-message success';
+        statusMsg.style.display = 'block';
+
+        document.getElementById('addPatientForm').reset();
+
+        window.scrollTo(0, 0);
+
+    } catch (error) {
+        console.error('Error adding patient:', error);
+        statusMsg.textContent = 'An error occurred. Please try again.';
+        statusMsg.className = 'status-message error';
+        statusMsg.style.display = 'block';
+    }
+}
+
+document.getElementById('addPatientForm').addEventListener('submit', handleAddPatient);
+
+window.onload = async function() {
+    if (!hospitalDB.db) {
+        await hospitalDB.init();
+    }
+
+    checkAuth();
+};
+</script>
+
+</body>
+</html>
