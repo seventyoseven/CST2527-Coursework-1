@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login | Medicare</title>
@@ -11,7 +12,7 @@
 </head>
 <body>
 
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -31,6 +32,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+	<!-- Dropdown menu for user profile and logout -->
 	<li class="nav-item dropdown">
 		<a href="#" class="login-btn">
 			<span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -42,6 +44,7 @@
 	</li>
   </ul>
  </nav>
+	
 <!-- Login Page -->
 <div id="appContainer">
     <div id="loginPage" class="page active">
@@ -97,8 +100,7 @@
 </footer>
 
 <script>
-//COPY PASTE THIS FROM HERE//
-//san input
+//Input sanitisation to handle characters typed in as input from user end
 function sanitizeInput(input) {
     var sanitized = input
         .replace(/&/g, "&amp;")
@@ -109,8 +111,8 @@ function sanitizeInput(input) {
         .replace(/\//g, "&#x2F;");
     return sanitized;
 }
-//COPY PASTE TO HERE//
-
+	
+// Login handler
 async function handleLogin(event) {
     event.preventDefault();
 
@@ -127,6 +129,7 @@ async function handleLogin(event) {
             await hospitalDB.init();
         }
 
+		// Authenticate admin user
         const result = await hospitalDB.authenticateAdmin(email, password);
 
         if (!result.success) {
@@ -145,6 +148,7 @@ async function handleLogin(event) {
             {}
         );
 
+		// Redirect to admin portal after successful login
         setTimeout(() => {
             window.location.href = "portal.html";
         }, 1000);
@@ -156,6 +160,7 @@ async function handleLogin(event) {
     }
 }
 
+// Showing test credentials
 async function showCredentials() {
     const display = document.getElementById('credentialsDisplay');
 
@@ -197,6 +202,7 @@ async function showCredentials() {
     }
 }
 
+// Autofill credentials
 function fillLoginForm(email, password) {
     document.getElementById("email").value = email;
     document.getElementById("password").value = password;
@@ -219,4 +225,5 @@ document.getElementById('loginForm').addEventListener('submit', handleLogin);
 </script>
 
 </body>
+
 </html>
