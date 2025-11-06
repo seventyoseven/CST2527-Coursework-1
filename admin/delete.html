@@ -42,7 +42,7 @@
   </ul>
 </nav>
 
-  <!-- Fields for adding a new patient to patient object store -->
+<!-- Form fields for deleting patient details from patient object store -->
 <div class="admin-form-container">
     <div class="page-header">
         <h1><i class="fa fa-trash"></i> Delete Patient Record</h1>
@@ -53,6 +53,7 @@
     <div class="form-section">
         <div id="statusMessage" class="status-message"></div>
 
+      <!-- Patient search and deletion form -->
         <form id="deleteForm">
             <div class="form-row">
                 <label><i class="fa fa-search"></i> NHS Number</label>
@@ -62,6 +63,7 @@
                 </button>
             </div>
 
+          <!-- If patient is found, section is displayed -->
             <div id="patientInfoSection" style="display: none; margin-top: 20px;">
                 <div class="patient-info-box">
                     <h3><i class="fa fa-user"></i> Patient Found</h3>
@@ -83,6 +85,7 @@
                     </label>
                 </div>
 
+              <!-- Delete button (enabled only after confirmation) -->
                 <button type="submit" id="deleteButton" class="btn-primary delete-btn" style="margin-top: 15px;" disabled>
                     <i class="fa fa-trash"></i> Delete Patient Permanently
                 </button>
@@ -134,6 +137,7 @@ function logout() {
     window.location.replace("login.html");
 }
 
+// Search for patient by their NHS
 async function findPatient() {
     const statusMsg = document.getElementById('statusMessage');
     const nhs = document.getElementById('nhsNumber').value.trim();
@@ -157,6 +161,7 @@ async function findPatient() {
 
         const patient = await hospitalDB.getDataByIndex('patients', 'NHS', nhs);
 
+      // Retrives patient by NHS index; shows error if patient is not found else it displys the details
         if (!patient) {
             statusMsg.textContent = 'No patient found with this NHS number';
             statusMsg.className = 'status-message error';
@@ -187,11 +192,13 @@ document.getElementById('confirmCheckbox').addEventListener('change', function()
     document.getElementById('deleteButton').disabled = !this.checked;
 });
 
+// Handle deletion after confirmation
 async function handleDelete(event) {
     event.preventDefault();
 
     const statusMsg = document.getElementById('statusMessage');
 
+  // Validate patient selection and confirmation
     if (!currentPatient) {
         statusMsg.textContent = 'Please find a patient first';
         statusMsg.className = 'status-message error';
@@ -206,6 +213,7 @@ async function handleDelete(event) {
         return;
     }
 
+  // Final confirmation popup
     const finalConfirm = confirm(
         `Are you absolutely sure you want to delete:\n\n` +
         `${currentPatient.First} ${currentPatient.Last}\n` +
@@ -256,3 +264,4 @@ window.onload = async function() {
 </body>
 
 </html>
+
