@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Portal | Medicare</title>
@@ -11,7 +12,7 @@
 </head>
 <body style="background-color: #f5f7fa;">
 
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-text">MediCare</a>
@@ -28,6 +29,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+    <!-- Dropdown menu for user profile and logout -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Admin</span> <i class="fa fa-caret-down"></i>
@@ -39,6 +41,7 @@
   </ul>
 </nav>
 
+<!-- Displaying the admin portal dashboard - greeting text and grid layout -->
 <div class="admin-portal-container">
     <div class="portal-header">
         <h1>Admin Portal</h1>
@@ -65,7 +68,7 @@
         </div>
     </div>
 
-    <!-- Dashboard Cards -->
+    <!-- Dashboard Cards : add patient, update patient, delete patient -->
     <div class="dashboard-grid">
         <a href="add.html" class="dashboard-card">
             <div class="card-header">
@@ -129,6 +132,7 @@
     </div>
 </div>
 
+<!-- FOOTER -->
 <footer>
     <div class="footer-left">
         <p><strong>Medicare</strong></p>
@@ -150,6 +154,7 @@
 </footer>
 
 <script>
+// Ensures only logged-in admins can access the portal
 function checkAuth() {
     const session = hospitalDB.getSession();
 
@@ -169,6 +174,7 @@ function checkAuth() {
     return true;
 }
 
+// Fetches patient, doctor, and appointment data from IndexedDB and updates the counters
 async function loadDashboardStats() {
     try {
         const patients = await hospitalDB.getAllData('patients');
@@ -197,6 +203,7 @@ async function loadDashboardStats() {
     }
 }
 
+// Clears current admin session and redirects to login page
 function logout() {
     hospitalDB.clearSession();
     window.location.replace("login.html");
@@ -218,4 +225,5 @@ window.onload = async function() {
 </script>
 
 </body>
+
 </html>
