@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!--Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries-->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Patient | Medicare</title>
@@ -11,7 +12,7 @@
 </head>
 <body style="background-color: #f5f7fa;">
 
-<!-- NAV BAR -->
+<!-- Navigation bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -31,6 +32,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+    <!-- Dropdown menu for user profile and logout option -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Admin</span> <i class="fa fa-caret-down"></i>
@@ -43,6 +45,7 @@
   </ul>
 </nav>
 
+<!-- From fields for adding new patient details to patient object store -->
 <div class="admin-form-container">
     <div class="page-header">
         <h1><i class="fa fa-user-plus"></i> Add New Patient</h1>
@@ -53,6 +56,7 @@
     <div class="form-section">
         <div id="statusMessage" class="status-message"></div>
 
+      <!-- Patient title dropdown and receiving other necessary patient details -->
         <form id="addPatientForm">
             <div class="form-row">
                 <label>Title</label>
@@ -115,6 +119,7 @@
                 </div>
             </div>
 
+          <!-- Password field with validation instruction -->
             <div class="form-row">
                 <label>Password</label>
                 <input type="password" id="password" placeholder="Enter password" required />
@@ -123,6 +128,7 @@
                 </small>
             </div>
 
+          <!-- Submit button -->
             <button type="submit" class="btn-primary">
                 <i class="fa fa-plus-circle"></i> Add Patient
             </button>
@@ -164,6 +170,7 @@ function sanitizeInput(input) {
     return sanitized;
 }
 
+// Check if admin user is authenticated, else it redirects it to login
 function checkAuth() {
     const session = hospitalDB.getSession();
 
@@ -178,11 +185,13 @@ function checkAuth() {
     return true;
 }
 
+// Clears current session and redirects to login page
 function logout() {
     hospitalDB.clearSession();
     window.location.replace("login.html");
 }
 
+// Handles form submission for adding a new patient
 async function handleAddPatient(event) {
     event.preventDefault();
 
@@ -194,6 +203,7 @@ async function handleAddPatient(event) {
             await hospitalDB.init();
         }
 
+      // Collect and sanitize form input values
         const title = document.getElementById('title').value;
         const firstName = sanitizeInput(document.getElementById('firstName').value.trim());
         const lastName = sanitizeInput(document.getElementById('lastName').value.trim());
@@ -230,6 +240,7 @@ async function handleAddPatient(event) {
             return;
         }
 
+      // Check for duplicates by NHS or email
         const existingPatient = await hospitalDB.getDataByIndex('patients', 'NHS', nhs);
         if (existingPatient) {
             statusMsg.textContent = 'A patient with this NHS number already exists';
@@ -246,6 +257,7 @@ async function handleAddPatient(event) {
             return;
         }
 
+      // Encrypt password and format data for indexeddb entry
         const encryptedPassword = hospitalDB.encryptData(password);
 
         const dobFormatted = new Date(dob).toLocaleDateString('en-GB', {
@@ -296,6 +308,7 @@ async function handleAddPatient(event) {
 
 document.getElementById('addPatientForm').addEventListener('submit', handleAddPatient);
 
+// Initialize database and authenticate user when page loads
 window.onload = async function() {
     if (!hospitalDB.db) {
         await hospitalDB.init();
@@ -306,4 +319,5 @@ window.onload = async function() {
 </script>
 
 </body>
+
 </html>
