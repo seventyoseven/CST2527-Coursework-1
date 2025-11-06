@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	  <!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Appointments | Medicare</title>
@@ -9,8 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="../js/dbmanager.js"></script>
 </head>
+	
 <body>
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -31,6 +33,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+    <!-- Dropdown menu for user profile and logout -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -48,6 +51,7 @@
       <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
       <h1>Appointments</h1>
 
+	<!-- Appointment booking form -->
       <div class="section">
         <h2>Book an Appointment</h2>
         <div id="bookingMessage" style="margin-bottom: 15px; display: none;"></div>
@@ -79,6 +83,7 @@
         </form>
       </div>
 
+	<!-- Appointment history display -->
       <div class="section">
         <h2>My Appointments</h2>
         <div id="appointmentsLoading" style="text-align: center; padding: 20px;">
@@ -125,7 +130,7 @@ function sanitizeInput(input) {
     return sanitized;
 }
 
-//authy check
+// Authentication to verify active patient session else redirects to login
 function checkAuth() {
     const session = hospitalDB.getSession();
 
@@ -140,13 +145,13 @@ function checkAuth() {
     return session.patientId;
 }
 
-//logout
+// Logs out user and clears session
 function logout() {
     hospitalDB.clearSession();
     window.location.replace("login.html");
 }
 
-//dropdown update
+//Dropdown update
 function goPortal() {
     const type = sessionStorage.getItem('userType');
 
@@ -155,7 +160,7 @@ function goPortal() {
     if (type === 'Admin') window.location.href = '../admin/portal.html';
 }
 
-//load doctors
+// Loads doctors into dropdown from indexeddb
 async function loadDoctors() {
     const doctors = await hospitalDB.getAllData("doctors");
     const select = document.getElementById("doctor");
@@ -170,7 +175,7 @@ async function loadDoctors() {
     });
 }
 
-//load appointments
+// Load scheduled appointments of patient
 async function loadAppointments() {
     const patientId = checkAuth();
     if (!patientId) return;
@@ -189,7 +194,7 @@ async function loadAppointments() {
 
     list.innerHTML = "";
 
-    //sort latest first
+    // Sort latest appointment first 
     appointments.sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
     for (const appt of appointments) {
@@ -216,7 +221,7 @@ async function loadAppointments() {
     list.style.display = "grid";
 }
 
-//book appointments
+// Book appointments and creates new record
 async function handleAppointmentSubmit(e) {
     e.preventDefault();
 
@@ -261,7 +266,7 @@ async function handleAppointmentSubmit(e) {
     }, 1500);
 }
 
-//db check
+// Database check and load page
 window.onload = async function () {
     if (!hospitalDB.db) {
         await hospitalDB.init();
@@ -281,4 +286,5 @@ window.onload = async function () {
 </script>
 
 </body>
+
 </html>
