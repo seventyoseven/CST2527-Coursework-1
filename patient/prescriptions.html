@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescriptions | Medicare</title>
+    <link rel="stylesheet" href="../main/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="../js/dbmanager.js"></script>
+</head>
+<body>
+<!-- NAV BAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="../main/index.html" class="logo-container">
+      <img src="../images/logo.png" alt="MediCare Logo" class="logo-image">
+      <span class="logo-text">MediCare</span>
+    </a>
+    <select class="location-select">
+      <option selected>Select Location</option>
+      <option>Location 1</option>
+      <option>Location 2</option>
+      <option>Location 3</option>
+    </select>
+  </div>
+
+  <ul class="nav-right">
+    <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
+    <li><a href="../patient/appointment.html">Book Appointment</a></li>
+    <li><a href="../main/index.html#about">About Us</a></li>
+    <li><a href="../main/contact.html">Contact Us</a></li>
+
+    <li class="nav-item dropdown">
+      <a href="#" class="login-btn">
+        <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
+      </a>
+      <div class="dropdown-menu">
+        <a href="profile.html"><i class="fa fa-user"></i> My Profile</a>
+        <a href="#" onclick="logout()"><i class="fa fa-sign-out"></i> Logout</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<div class="patient-portal">
+    <div class="container">
+      <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
+      <h1>Treatments & Prescriptions</h1>
+
+      <div class="section">
+        <div id="refillMessage" class="refill-message"></div>
+        
+        <div id="treatmentsLoading" style="text-align: center; padding: 20px;">
+          <i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i>
+          <p>Loading treatments...</p>
+        </div>
+        
+        <div id="treatmentsContent" style="display: none;">
+          <!-- Active Treatments -->
+          <div id="activeTreatmentsSection">
+            <h2>Active Treatments</h2>
+            <div id="activeTreatmentsList" class="prescriptions-list"></div>
+            <p id="noActiveTreatments" class="no-data" style="display: none;">No active treatments.</p>
+          </div>
+
+          <!-- Past Treatments -->
+          <div id="pastTreatmentsSection" style="margin-top: 30px;">
+            <h2>Past Treatments</h2>
+            <div id="pastTreatmentsList" class="prescriptions-list"></div>
+            <p id="noPastTreatments" class="no-data" style="display: none;">No past treatments.</p>
+          </div>
+        </div>
+
+        <p id="noTreatments" class="no-data" style="display: none;">No treatments or prescriptions available.</p>
+      </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer style="margin-top:50px;">
+    <div class="footer-left">
+        <p><strong>Medicare</strong></p>
+        <br>
+        <p>123 Med City, MC 45678, United Arab Emirates</p>
+    </div>
+    <div class="footer-right">
+        <div class="social-icons">
+            <img src="../images/insta.png" alt="Instagram" width="70" height="70">
+            <img src="../images/facebook.png" alt="Facebook" width="70" height="70">
+            <img src="../images/youtube.png" alt="Youtube" width="70" height="70">
+            <img src="../images/twitter.png" alt="Twitter" width="70" height="70">
+            <img src="../images/linkedin.png" alt="Linkedin" width="70" height="70">
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; Copyright Medicare 2025</p>
+    </div>
+</footer>
+
+<script>
+function escapeHTML(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+var db;
+
+function checkAuth() {
+    var userId = sessionStorage.getItem('userId');
+    var userType = sessionStorage.getItem('userType');
+    var userName = sessionStorage.getItem('userName');
+    var patientId = sessionStorage.getItem('patientId');
+    
+    if (!userId || userType !== 'Patient') {
+        window.location.replace('login.html');
+        return null;
+    }
+    
+    if (userName) {
+        var firstName = userName.split(' ')[0];
+        document.getElementById('userNameDisplay').textContent = firstName;
+    }
+    
+    return patientId;
+}
+
+function logout() {
+    sessionStorage.removeItem('userId');
+    sessionStorage.removeItem('userType');
+    sessionStorage.removeItem('userName');
+    sessionStorage.removeItem('patientId');
+    sessionStorage.removeItem('patientNHS');
+    window.location.replace('login.html');
+}
+
+function goPortal() {
+    const type = sessionStorage.getItem('userType');
+    if (type === 'Patient') window.location.href = '../patient/portal.html';
+    if (type === 'Doctor') window.location.href = '../doctor/portal.html';
+    if (type === 'Admin') window.location.href = '../admin/portal.html';
+}
+
+function loadTreatments() {
+    var patientId = checkAuth();
+    if (!patientId) return;
+    
+    if (!db) db = window.db;
+    if (!db) {
+        console.log('Database not ready, retrying...');
+        setTimeout(loadTreatments, 100);
+        return;
+    }
+    
+    var transaction = db.transaction(['treatments', 'doctors', 'medicines'], 'readonly');
+    var treatmentStore = transaction.objectStore('treatments');
+    var treatmentIndex = treatmentStore.index('Patient_ID');
+    var request = treatmentIndex.openCursor(parseInt(patientId));
+    
+    var treatments = [];
+    
+    request.onsuccess = function(event) {
+        var cursor = event.target.result;
+        
+        if (cursor) {
+            treatments.push(cursor.value);
+            cursor.continue();
+        } else {
+            document.getElementById('treatmentsLoading').style.display = 'none';
+            
+            if (treatments.length > 0) {
+                document.getElementById('treatmentsContent').style.display = 'block';
+                
+                var activeTreatments = treatments.filter(t => !t.Status || t.Status === 'Active' || t.Status === 'Ongoing');
+                var pastTreatments = treatments.filter(t => t.Status === 'Completed' || t.Status === 'Discontinued');
+                
+                var activeList = document.getElementById('activeTreatmentsList');
+                var pastList = document.getElementById('pastTreatmentsList');
+
+                if (activeTreatments.length > 0) {
+                    activeList.innerHTML = '';
+                    activeTreatments.forEach(t => createTreatmentCard(t, activeList, transaction, true));
+                } else {
+                    document.getElementById('noActiveTreatments').style.display = 'block';
+                }
+
+                if (pastTreatments.length > 0) {
+                    pastList.innerHTML = '';
+                    pastTreatments.forEach(t => createTreatmentCard(t, pastList, transaction, false));
+                } else {
+                    document.getElementById('noPastTreatments').style.display = 'block';
+                }
+            } else {
+                document.getElementById('noTreatments').style.display = 'block';
+            }
+        }
+    };
+}
+
+function createTreatmentCard(treatment, container, transaction, isActive) {
+    var card = document.createElement('div');
+    card.className = 'prescription-card';
+    
+    var doctorStore = transaction.objectStore('doctors');
+    var medicineStore = transaction.objectStore('medicines');
+
+    var doctorRequest = doctorStore.get(treatment.Doctor_ID);
+    var medicineRequest = medicineStore.get(treatment.Medicine_ID);
+    
+    var doctorName = 'N/A';
+    var medicineName = 'Medicine N/A';
+    
+    doctorRequest.onsuccess = function(e) {
+        var doctor = e.target.result;
+        if (doctor) {
+            doctorName = 'Dr. ' + doctor.first_name + ' ' + doctor.last_name;
+        }
+        
+        medicineRequest.onsuccess = function(e2) {
+            var medicine = e2.target.result;
+            if (medicine) {
+                medicineName = medicine.Drug;
+            }
+            
+            var statusColor = treatment.Status === 'Active' ? '#4CAF50' : '#757575';
+            
+            card.innerHTML = `
+                <h3>${medicineName}</h3>
+                <p><strong>Doctor:</strong> ${doctorName}</p>
+                <p><strong>Dosage:</strong> ${treatment.Dosage || 'As prescribed'}</p>
+                <p><strong>Frequency:</strong> ${treatment.Frequency || 'As prescribed'}</p>
+                ${treatment.Instructions ? `<p><strong>Instructions:</strong> ${escapeHTML(treatment.Instructions)}</p>` : ''}
+                <p><strong>Status:</strong> 
+                    <span style="color: ${statusColor}; font-weight: bold;">${treatment.Status || 'Active'}</span>
+                </p>
+                ${isActive ? `
+                <div class="refill-actions">
+                    <button class="btn-request-refill" onclick="requestRefill(${treatment.id}, '${escapeHTML(medicineName)}')">
+                        <i class="fa fa-repeat"></i> Request Refill
+                    </button>
+                </div>
+                ` : ''}
+            `;
+            
+            container.appendChild(card);
+        };
+    };
+}
+
+async function requestRefill(treatmentId, medicineName) {
+    const patientId = checkAuth();
+    if (!patientId) return;
+
+    const reason = prompt(`Request refill for ${medicineName}\n\nPlease provide a reason for this refill request:`);
+    
+    if (!reason || reason.trim() === '') {
+        showMessage('Please provide a reason for the refill request.', 'error');
+        return;
+    }
+
+    try {
+        await hospitalDB.waitForDB();
+        
+        const refillRequest = {
+            Patient_ID: parseInt(patientId),
+            Treatment_ID: parseInt(treatmentId),
+            Status: 'Pending',
+            Patient_Reason: reason.trim(),
+            Date_Requested: new Date().toISOString()
+        };
+
+        await hospitalDB.addData('refills', refillRequest);
+        
+        showMessage('Refill request submitted successfully! Your doctor will review it shortly.', 'success');
+        
+        setTimeout(() => {
+            loadTreatments();
+        }, 2000);
+
+    } catch (error) {
+        console.error('Error submitting refill request:', error);
+        showMessage('Error submitting refill request. Please try again.', 'error');
+    }
+}
+
+function showMessage(message, type) {
+    const messageDiv = document.getElementById('refillMessage');
+    messageDiv.textContent = message;
+    messageDiv.className = `refill-message ${type}`;
+    messageDiv.style.display = 'block';
+    
+    setTimeout(() => {
+        messageDiv.style.display = 'none';
+    }, 5000);
+}
+
+window.onload = function() {
+    if (checkAuth()) {
+        loadTreatments();
+    }
+};
+
+window.logout = logout;
+window.requestRefill = requestRefill;
+</script>
+
+</body>
+</html>
