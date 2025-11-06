@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	  <!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Login | Medicare</title>
@@ -9,8 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="../js/dbmanager.js"></script>
 </head>
+	
 <body>
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -30,6 +32,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+	<!-- Dropdown menu for doctor and patient portal -->
 	<li class="nav-item dropdown">
 		<a href="#" class="login-btn">
 			<span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -119,10 +122,12 @@ function sanitizeInput(input) {
     return sanitized;
 }
 
+// To decrypt encrypted password if needed
 function decryptData(encryptedPassword) {
     return hospitalDB.decryptData(encryptedPassword);
 }
 
+// Validate user credentials and proceed with login
 async function handleLogin(event) {
     event.preventDefault();
 
@@ -139,6 +144,7 @@ async function handleLogin(event) {
             await hospitalDB.init();
         }
 
+		// Authenticate user crendentials from indexeddb
         const result = await hospitalDB.authenticatePatient(email, password);
 
         if (!result.success) {
@@ -150,6 +156,7 @@ async function handleLogin(event) {
 
         const user = result.user;
 
+		// Save login session if authenticated
         hospitalDB.saveSession(
             user.id,
             "Patient",
@@ -171,6 +178,7 @@ async function handleLogin(event) {
     }
 }
 
+// To display credentials
 async function showCredentials() {
     const display = document.getElementById('credentialsDisplay');
 
@@ -212,6 +220,7 @@ async function showCredentials() {
     }
 }
 
+// Autofill login form when test credentials are clicked
 function fillLoginForm(email, password) {
     document.getElementById("email").value = email;
     document.getElementById("password").value = password;
