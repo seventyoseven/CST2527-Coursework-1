@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile | Medicare</title>
@@ -9,8 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="../js/dbmanager.js"></script>
 </head>
+	
 <body>
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -25,13 +27,13 @@
     </select>
   </div>
 
-
   <ul class="nav-right">
     <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
 	<li><a href="../patient/appointment.html">Book Appointment</a></li>
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+	<!-- Dropdown menu for user profile and logout -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -44,18 +46,20 @@
   </ul>
 </nav>
 
-  <!-- PATIENT PORTAL -->
+	<!-- Main patient profile section -->
   <div class="patient-portal">
     <div class="container">
       <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
       <h1>My Profile</h1>
 
+	<!-- Profile loading and display section -->
       <div class="section">
         <div id="loadingMessage" style="text-align: center; padding: 20px;">
           <i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i>
           <p>Loading profile...</p>
         </div>
 
+		<!-- Read-only profile details form -->
         <div class="profile-form" id="profileForm" style="display: none;">
           <h2>Personal Information</h2>
 
@@ -131,7 +135,7 @@
 </footer>
 
 <script>
-//authy w db
+// Check user authentication and ensure logged-in patient session
 function checkAuth() {
     const session = hospitalDB.getSession();
 
@@ -146,13 +150,13 @@ function checkAuth() {
     return session.patientId;
 }
 
-//logout
+// Logout function 
 function logout() {
     hospitalDB.clearSession();
     window.location.replace("login.html");
 }
 
-//patient profile
+// Load and display patient profile data from indexeddb
 async function loadProfile() {
     const patientId = checkAuth();
     if (!patientId) return;
@@ -178,7 +182,7 @@ function goPortal() {
     if (type === 'Admin') window.location.href = '../admin/portal.html';
 }
 
-    //fill form
+    // Populate form fields with patient data
     document.getElementById("title").value = patient.Title || "N/A";
     document.getElementById("fullName").value = `${patient.First} ${patient.Last}`;
     document.getElementById("nhsNumber").value = patient.NHS || "N/A";
@@ -188,12 +192,12 @@ function goPortal() {
     document.getElementById("telephone").value = patient.Telephone || "N/A";
     document.getElementById("address").value = patient.Address || "N/A";
 
-    //show form
+    // Show profile form
     document.getElementById("loadingMessage").style.display = "none";
     document.getElementById("profileForm").style.display = "block";
 }
 
-//db check
+// Initialize database and load profile on page load
 window.onload = async function () {
     await hospitalDB.init();
     loadProfile();
@@ -201,4 +205,5 @@ window.onload = async function () {
 </script>
 
 </body>
+
 </html>
