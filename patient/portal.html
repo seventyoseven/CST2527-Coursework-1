@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	  <!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Portal | Medicare</title>
@@ -9,8 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="../js/dbmanager.js"></script>
 </head>
+	
 <body>
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -32,6 +34,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+    <!-- Dropdown menu for user profile and logout -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -48,7 +51,8 @@
     <h1>Patient Portal</h1>
     <p class="portal-intro">Welcome, <strong id="patientWelcome">Patient</strong>! Access all your healthcare services in one place.</p>
 
-<!-- left side  -->
+<!-- Displaying the patient portal dashboard - greeting text and layout -->
+<!-- left side of dashboard: quick actions and right side of dashboard: upcoming appointments -->
     <div class="dashboard-layout">
       <div class="quick-actions">
         <a href="appointment.html" class="featured-card">
@@ -93,13 +97,15 @@
           </a>
         </div>
 
+		<!-- Loading indicator while fetching appointments -->
         <div id="appointmentsLoading" style="text-align: center; padding: 20px; display: none;">
           <i class="fa fa-spinner fa-spin" style="font-size: 24px; color: #306BAC;"></i>
           <p style="color: #666; margin-top: 10px;">Loading appointments...</p>
         </div>
 
         <div id="appointmentsList"></div>
-        
+
+		<!-- Displayed when no upcoming appointments are found -->
         <div id="noAppointments" class="no-appointments" style="display: none;">
           <i class="fa fa-calendar-o"></i>
           <p>No upcoming appointments scheduled.</p>
@@ -134,6 +140,7 @@
 </footer>
 
 <script>
+// Check authentication and ensure only logged-in patients can access
 function checkAuth() {
     const session = hospitalDB.getSession();
 
@@ -141,7 +148,8 @@ function checkAuth() {
         window.location.replace('login.html');
         return false;
     }
-
+	
+	// Display full and first name for greeting text
     const fullName = session.userName || 'Patient';
     const firstName = fullName.split(' ')[0];
 
@@ -158,11 +166,13 @@ function goPortal() {
     if (type === 'Admin') window.location.href = '../admin/portal.html';
 }
 
+// Clear user session and redirect to login once logged out
 function logout() {
     hospitalDB.clearSession();
     window.location.replace('login.html');
 }
 
+// Fetch and display the patient’s upcoming appointments
 async function loadUpcomingAppointments() {
     const patientId = checkAuth();
     if (!patientId) return;
@@ -183,7 +193,7 @@ async function loadUpcomingAppointments() {
             return;
         }
 
-        // filter for appointments
+        // Filter for appointments
         const now = new Date();
         now.setHours(0, 0, 0, 0);
 
@@ -197,12 +207,13 @@ async function loadUpcomingAppointments() {
             return;
         }
 
-        // sort by date (first 3)
+        // Sort by date (first 3 upcoming appointment)
         upcoming.sort((a, b) => new Date(a.Date) - new Date(b.Date));
         const displayAppointments = upcoming.slice(0, 3);
 
         listDiv.innerHTML = '';
 
+		// Loop through to display each apoointment card
         for (const appt of displayAppointments) {
             const doc = await hospitalDB.getDataById('doctors', appt.Doctor_ID);
             const dateObj = new Date(appt.Date);
@@ -217,7 +228,8 @@ async function loadUpcomingAppointments() {
                 hour: '2-digit',
                 minute: '2-digit'
             });
-
+			
+			// Determining status colour
             const status = appt.Status || 'Pending';
             let statusClass = 'status-pending';
             if (status === 'Confirmed') statusClass = 'status-confirmed';
@@ -254,6 +266,7 @@ async function loadUpcomingAppointments() {
     }
 }
 
+// Initialize database and load data on page load
 window.onload = async function() {
     if (!hospitalDB.db) {
         await hospitalDB.init();
@@ -263,4 +276,5 @@ window.onload = async function() {
 </script>
 
 </body>
+
 </html>
