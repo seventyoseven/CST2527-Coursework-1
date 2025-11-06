@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Delete Patient | Medicare</title>
@@ -11,7 +12,7 @@
 </head>
 <body style="background-color: #f5f7fa;">
 
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-text">MediCare</a>
@@ -28,6 +29,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+    <!-- Dropdown menu for user profile and logout -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Admin</span> <i class="fa fa-caret-down"></i>
@@ -40,6 +42,7 @@
   </ul>
 </nav>
 
+  <!-- Fields for adding a new patient to patient object store -->
 <div class="admin-form-container">
     <div class="page-header">
         <h1><i class="fa fa-trash"></i> Delete Patient Record</h1>
@@ -251,4 +254,5 @@ window.onload = async function() {
 </script>
 
 </body>
+
 </html>
