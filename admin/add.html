@@ -280,7 +280,7 @@ async function handleAddPatient(event) {
             PlainPassword: password
         };
 
-        const newPatientId = await hospitalDB.addData('patients', newPatient);
+        await hospitalDB.addData('patients', newPatient);
 
 
         statusMsg.innerHTML = `
@@ -322,5 +322,6 @@ window.onload = async function() {
 </body>
 
 </html>
+
 
 
