@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Treatment | Medicare</title>
@@ -213,7 +214,7 @@
 </head>
 <body>
 
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -234,6 +235,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+    <!-- Dropdown menu for user profile and logout -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -351,6 +353,7 @@ let appointmentId = null;
 let appointmentData = null;
 let patientData = null;
 
+// Authorization check of session and ensures only doctors can access page
 function checkAuth() {
     const session = hospitalDB.getSession();
     if (!session.userId || session.userType !== 'Doctor') {
@@ -363,11 +366,13 @@ function checkAuth() {
     return session;
 }
 
+// Getting appointment ID
 function getAppointmentId() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('appointment');
 }
 
+// Laoding appointment data from indexeddb of specific patient
 async function loadAppointmentData() {
     appointmentId = getAppointmentId();
     
@@ -404,6 +409,7 @@ async function loadAppointmentData() {
     }
 }
 
+// Displaying patient details and appointment 
 function displayPatientInfo() {
     const grid = document.getElementById('patientInfoGrid');
     
@@ -517,6 +523,7 @@ function goPortal() {
     if (type === 'Admin') window.location.href = '../admin/portal.html';
 }
 
+// Upon logout, session data is cleared and redirected to login page
 function logout() {
     hospitalDB.clearSession();
     window.location.replace('login.html');
@@ -533,4 +540,5 @@ window.onload = async function() {
 </script>
 
 </body>
+
 </html>
