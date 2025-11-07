@@ -534,7 +534,7 @@
 let allAppointments = [];
 
 
-// Authorization check of session and ensures only doctors can access page
+// Authentication  check of session and ensures only doctors can access page
 function checkAuth() {
     const session = hospitalDB.getSession();
     if (!session.userId || session.userType !== 'Doctor') {
@@ -915,4 +915,5 @@ window.denyRefill = denyRefill;
 </body>
 
 </html>
+
 
