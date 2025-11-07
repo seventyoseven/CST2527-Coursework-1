@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../main/styles.css">
@@ -296,11 +297,13 @@
     <script src="../js/dbmanager.js"></script>
     
     <script>  
+        // Initialization
         window.onDBReady = function() {
             console.log("DB is ready to populate patient dropdown");
             populatePatientDropdown();
         };
         
+        // Fetches all patient data once DB is ready
         async function populatePatientDropdown() {
             try {
                 await hospitalDB.waitForDB();
@@ -315,6 +318,7 @@
             }
         }
 
+        // Filters patient names dynamically as per input; matching NHS and names are shown in dropdown
         function filterPatients() {
             const input = document.getElementById("patientSearch");
             const dropdown = document.getElementById("dropdownResults");
@@ -350,6 +354,7 @@
             dropdown.classList.add('active');
         }
 
+        // Selects patient details when selected from dropdown
         function selectPatient(patient) {
             document.getElementById("patientSearch").value = `${patient.First} ${patient.Last}`;
             document.getElementById("dropdownResults").classList.remove('active');
@@ -358,6 +363,7 @@
             displayPatientRecords(patient.id);
         }
 
+        // Shows patient's profile information 
         function displayPatientDetails(patient) {
             const container = document.getElementById("patientHeader");
             
@@ -398,6 +404,7 @@
             container.style.display = 'block';
         }
 
+        // Retrives and displays all medical notes and treatments related to the patient
         async function displayPatientRecords(patientId) {
             const container = document.getElementById("recordsContainer");
             container.innerHTML = "";
@@ -423,6 +430,7 @@
 
                 records.sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
+                // Generate a record card for each medical note
                 records.forEach(record => {
                     const doctor = doctors.find(d => d.id === record.Doctor_ID);
                     const doctorName = record.doctorName || 
@@ -552,12 +560,12 @@
     </select>
   </div>
 
-
   <ul class="nav-right">
     <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
-
+      
+    <!-- Nav bar with site logo, location selector and links to main HTML pages -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -574,6 +582,7 @@
     <h1>Patient Records</h1>
     <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
 
+    <!-- Patient search interface -->
     <div class="search-section">
         <p>Search for a patient by name or NHS number to view their complete medical history.</p>
         
@@ -590,12 +599,14 @@
             <div class="dropdown-results" id="dropdownResults"></div>
         </div>
     </div>
-
+    
+    <!-- Patient info and medical record display -->
     <div class="patient-header-card" id="patientHeader" style="display: none;"></div>
 
     <div id="recordsContainer"></div>
 </div>
 
+<!-- FOOTER -->
 <footer>
     <div class="footer-left">
         <p><strong>Medicare</strong></p>
@@ -617,6 +628,8 @@
 </footer>
 
 <script>
+    
+    // Authorization check of session and ensures only doctors can access page
     function checkAuth() {
         const session = hospitalDB.getSession();
 
@@ -632,6 +645,7 @@
         return true;
     }
 
+    // Dropdown update 
     function goPortal() {
         const type = sessionStorage.getItem('userType');
         if (type === 'Patient') window.location.href = '../patient/portal.html';
@@ -639,6 +653,7 @@
         if (type === 'Admin') window.location.href = '../admin/portal.html';
     }
 
+    // Upon logout, session data is cleared and redirected to login page
     function logout() {
         hospitalDB.clearSession();
         const currentPath = window.location.pathname;
@@ -649,6 +664,7 @@
         }
     }
 
+    // Initialize DB
     window.onload = async function() {
         if (!hospitalDB.db) {
             await hospitalDB.init();
@@ -657,4 +673,5 @@
     };
 </script>
 </body>
+
 </html>
