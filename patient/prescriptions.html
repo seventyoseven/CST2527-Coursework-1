@@ -135,7 +135,7 @@ function checkAuth() {
     return patientId;
 }
 
-// Upon login, session data is cleared and redirected to login page
+// Upon logout, session data is cleared and redirected to login page
 function logout() {
     sessionStorage.removeItem('userId');
     sessionStorage.removeItem('userType');
@@ -323,3 +323,4 @@ window.requestRefill = requestRefill;
 </body>
 
 </html>
+
