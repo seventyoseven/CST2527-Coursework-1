@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Treatment Plan | Medicare</title>
@@ -185,12 +186,12 @@
     </select>
   </div>
 
-
   <ul class="nav-right">
     <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
-
+      
+	<!-- Nav bar with site logo, location selector and links to main HTML pages -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -212,16 +213,19 @@
         <p>Loading treatment plan...</p>
     </div>
 
+    <!-- Treatment deatils displays once data successfully loads -->
     <div id="contentArea" style="display: none;">
         <div class="patient-info-card" id="patientInfoCard">
             <h2><i class="fa fa-user-circle"></i> Patient Information</h2>
             <div class="patient-info-grid" id="patientInfoGrid"></div>
         </div>
-
+        
+        <!-- Displays dynamically generated treatment details -->
         <div class="treatment-display-container" id="treatmentDisplay"></div>
     </div>
 </div>
 
+<!-- FOOTER -->
 <footer>
     <div class="footer-left">
         <p><strong>Medicare</strong></p>
@@ -243,6 +247,7 @@
 </footer>
 
 <script>
+// Authorization check of session and ensures only doctors can access page
 function checkAuth() {
     const session = hospitalDB.getSession();
     if (!session.userId || session.userType !== 'Doctor') {
@@ -255,11 +260,13 @@ function checkAuth() {
     return session;
 }
 
+// Getting appointment ID
 function getAppointmentId() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('appointment');
 }
 
+// Fetching treatment details of patient from indexeddb
 async function loadTreatment() {
     const appointmentId = getAppointmentId();
     
@@ -311,6 +318,7 @@ async function loadTreatment() {
     }
 }
 
+// Displaying fetched patient info data 
 function displayPatientInfo(appointment, patient) {
     const grid = document.getElementById('patientInfoGrid');
     
@@ -355,6 +363,7 @@ function displayPatientInfo(appointment, patient) {
     `;
 }
 
+// Displaying treatment section with fetched data
 function displayTreatment(treatment, medicine) {
     const display = document.getElementById('treatmentDisplay');
     
@@ -420,6 +429,7 @@ function displayTreatment(treatment, medicine) {
     `;
 }
 
+// Dropdown update 
 function goPortal() {
     const type = sessionStorage.getItem('userType');
     if (type === 'Patient') window.location.href = '../patient/portal.html';
@@ -427,6 +437,7 @@ function goPortal() {
     if (type === 'Admin') window.location.href = '../admin/portal.html';
 }
 
+// Upon logout, session data is cleared and redirected to login page
 function logout() {
     hospitalDB.clearSession();
     const currentPath = window.location.pathname;
@@ -437,6 +448,7 @@ function logout() {
     }
 }
 
+// Initialise DB
 window.onload = async function() {
     if (!hospitalDB.db) {
         await hospitalDB.init();
@@ -447,4 +459,5 @@ window.onload = async function() {
 </script>
 
 </body>
+
 </html>
