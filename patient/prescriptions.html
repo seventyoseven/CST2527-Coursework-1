@@ -115,7 +115,7 @@ function escapeHTML(text) {
 
 var db;
 
-// Authorization check of session and ensures only patients can access page
+// Authentication check of session and ensures only patients can access page
 function checkAuth() {
     var userId = sessionStorage.getItem('userId');
     var userType = sessionStorage.getItem('userType');
@@ -323,4 +323,5 @@ window.requestRefill = requestRefill;
 </body>
 
 </html>
+
 
