@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Portal | Medicare</title>
@@ -207,7 +208,7 @@
 </head>
 <body>
 
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -228,6 +229,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+    <!-- Dropdown for logout and user profile -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -246,6 +248,7 @@
         <p>Welcome back, <span class="welcome-name" id="doctorWelcome">Doctor</span>! Here's your dashboard.</p>
     </div>
 
+    <!-- Quick actions showing key metrics: no of appointments, pending and total patients -->
     <div class="quick-stats" id="quickStats">
         <div class="stat-card">
             <div class="stat-number" id="todayAppointments">0</div>
@@ -261,6 +264,7 @@
         </div>
     </div>
 
+    <!-- Dashboard navigation cards for main features -->
     <div class="dashboard-grid">
         <a href="appointments.html" class="dashboard-card">
             <div class="card-icon">
@@ -288,6 +292,7 @@
             </div>
         </a>
 
+        <!-- Doctor profile card -->
         <a href="profile.html" class="dashboard-card">
             <div class="card-icon">
                 <i class="fa fa-user"></i>
@@ -325,6 +330,7 @@
 </footer>
 
 <script>
+// Authentication check of session and ensures only doctors can access page
 function checkAuth() {
     const session = hospitalDB.getSession();
 
@@ -344,6 +350,7 @@ function checkAuth() {
     return true;
 }
 
+// Loads and displays dashboard stats 
 async function loadDashboardStats(doctorId) {
     try {
         const appointments = await hospitalDB.getDoctorAppointments(doctorId);
@@ -377,6 +384,7 @@ async function loadDashboardStats(doctorId) {
     }
 }
 
+// Dropdown update
 function goPortal() {
     const type = sessionStorage.getItem('userType');
 
@@ -385,6 +393,7 @@ function goPortal() {
     if (type === 'Admin') window.location.href = '../admin/portal.html';
 }
 
+// Upon logout, session data is cleared and redirected to login page
 function logout() {
     hospitalDB.clearSession();
     const currentPath = window.location.pathname;
@@ -395,6 +404,7 @@ function logout() {
     }
 }
 
+// Initialise DB
 window.onload = async function() {
     if (!hospitalDB.db) {
         await hospitalDB.init();
@@ -404,4 +414,5 @@ window.onload = async function() {
 </script>
 
 </body>
+
 </html>
