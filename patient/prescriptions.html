@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+      <!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prescriptions | Medicare</title>
@@ -10,7 +11,7 @@
     <script src="../js/dbmanager.js"></script>
 </head>
 <body>
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -31,6 +32,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+    <!-- Dropdown menu for user profile and logout -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -43,6 +45,7 @@
   </ul>
 </nav>
 
+<!-- Section displaying patient treatments and prescription -->
 <div class="patient-portal">
     <div class="container">
       <p><a href="portal.html" class="back-link">← Back to Dashboard</a></p>
@@ -99,6 +102,7 @@
 </footer>
 
 <script>
+// To prevent XSS sanitization of input is implemented 
 function escapeHTML(text) {
     if (!text) return '';
     return text
@@ -111,6 +115,7 @@ function escapeHTML(text) {
 
 var db;
 
+// Authorization check of session and ensures only patients can access page
 function checkAuth() {
     var userId = sessionStorage.getItem('userId');
     var userType = sessionStorage.getItem('userType');
@@ -130,6 +135,7 @@ function checkAuth() {
     return patientId;
 }
 
+// Upon login, session data is cleared and redirected to login page
 function logout() {
     sessionStorage.removeItem('userId');
     sessionStorage.removeItem('userType');
@@ -139,6 +145,7 @@ function logout() {
     window.location.replace('login.html');
 }
 
+// Dropdown updation 
 function goPortal() {
     const type = sessionStorage.getItem('userType');
     if (type === 'Patient') window.location.href = '../patient/portal.html';
@@ -146,6 +153,7 @@ function goPortal() {
     if (type === 'Admin') window.location.href = '../admin/portal.html';
 }
 
+// Fetches data from indexeddb for active and past treatments to display
 function loadTreatments() {
     var patientId = checkAuth();
     if (!patientId) return;
@@ -202,6 +210,7 @@ function loadTreatments() {
     };
 }
 
+// To display fetched data of treatment and prescritpion in formatted card
 function createTreatmentCard(treatment, container, transaction, isActive) {
     var card = document.createElement('div');
     card.className = 'prescription-card';
@@ -252,6 +261,7 @@ function createTreatmentCard(treatment, container, transaction, isActive) {
     };
 }
 
+// To request refill of active prescritpions
 async function requestRefill(treatmentId, medicineName) {
     const patientId = checkAuth();
     if (!patientId) return;
@@ -288,6 +298,7 @@ async function requestRefill(treatmentId, medicineName) {
     }
 }
 
+// Displaying success or error message for refill 
 function showMessage(message, type) {
     const messageDiv = document.getElementById('refillMessage');
     messageDiv.textContent = message;
@@ -310,4 +321,5 @@ window.requestRefill = requestRefill;
 </script>
 
 </body>
+
 </html>
