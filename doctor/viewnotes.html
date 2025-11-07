@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Medical Notes | Medicare</title>
@@ -191,6 +192,7 @@
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
 
+    <!-- Nav bar with site logo, location selector and links to main HTML pages -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -212,16 +214,19 @@
         <p>Loading medical notes...</p>
     </div>
 
+    <!-- Displayed once patient and note data are loaded -->
     <div id="contentArea" style="display: none;">
+        <!-- Patient information section -->
         <div class="patient-info-card" id="patientInfoCard">
             <h2><i class="fa fa-user-circle"></i> Patient Information</h2>
             <div class="patient-info-grid" id="patientInfoGrid"></div>
         </div>
-
+        <!-- Medical notes display -->
         <div class="notes-display-container" id="notesDisplay"></div>
     </div>
 </div>
 
+<!-- FOOTER -->
 <footer>
     <div class="footer-left">
         <p><strong>Medicare</strong></p>
@@ -243,6 +248,8 @@
 </footer>
 
 <script>
+
+// Authorization check of session and ensures only doctors can access page
 function checkAuth() {
     const session = hospitalDB.getSession();
     if (!session.userId || session.userType !== 'Doctor') {
@@ -255,11 +262,13 @@ function checkAuth() {
     return session;
 }
 
+// Getting appointment ID
 function getAppointmentId() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('appointment');
 }
 
+// Fteches appointment, patient, and notes from indexeddb
 async function loadNotes() {
     const appointmentId = getAppointmentId();
     
@@ -295,6 +304,7 @@ async function loadNotes() {
             return;
         }
 
+        // Display fetched data in the page sections
         displayPatientInfo(appointment, patient);
         displayNotes(note);
 
@@ -308,6 +318,7 @@ async function loadNotes() {
     }
 }
 
+// Populates patient information card
 function displayPatientInfo(appointment, patient) {
     const grid = document.getElementById('patientInfoGrid');
     
@@ -352,6 +363,7 @@ function displayPatientInfo(appointment, patient) {
     `;
 }
 
+// Displays fetched medical notes in structured sections
 function displayNotes(note) {
     const display = document.getElementById('notesDisplay');
     
@@ -421,6 +433,7 @@ function displayNotes(note) {
     `;
 }
 
+// Dropdown update
 function goPortal() {
     const type = sessionStorage.getItem('userType');
     if (type === 'Patient') window.location.href = '../patient/portal.html';
@@ -428,6 +441,7 @@ function goPortal() {
     if (type === 'Admin') window.location.href = '../admin/portal.html';
 }
 
+// Upon logout, session data is cleared and redirected to login page
 function logout() {
     hospitalDB.clearSession();
     const currentPath = window.location.pathname;
@@ -438,6 +452,7 @@ function logout() {
     }
 }
 
+// Intialize DB
 window.onload = async function() {
     if (!hospitalDB.db) {
         await hospitalDB.init();
@@ -448,4 +463,5 @@ window.onload = async function() {
 </script>
 
 </body>
+
 </html>
