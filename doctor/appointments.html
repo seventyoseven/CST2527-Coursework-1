@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointments | Medicare</title>
@@ -397,7 +398,8 @@
     <li><a href="portal.html"><i class="fa fa-home"></i> Dashboard</a></li>
     <li><a href="../main/index.html#about">About Us</a></li>
     <li><a href="../main/contact.html">Contact Us</a></li>
-
+	  
+	<!-- Nav bar with site logo, location selector and links to main HTML pages -->
     <li class="nav-item dropdown">
       <a href="#" class="login-btn">
         <span id="userNameDisplay">Login</span> <i class="fa fa-caret-down"></i>
@@ -410,6 +412,7 @@
   </ul>
 </nav>
 
+<!-- Main area to display appointment details -->
 <div class="container">
     <h1>My Appointments</h1>
     <p><a href="portal.html" class="back-link"><i class="fa fa-arrow-left"></i> Back to Dashboard</a></p>
@@ -418,13 +421,14 @@
         <i class="fa fa-spinner fa-spin"></i>
         <p>Loading appointments...</p>
     </div>
-
+	<!-- Appointments section -->
     <div class="appointments-section-wrapper" id="appointmentsSectionWrapper" style="display: none;">
         <div class="section-title-wrapper">
             <h2 class="section-title">Appointments</h2>
         </div>
         
         <div class="appointments-table-wrapper">
+			<!-- Filter controls for status and date -->
             <div class="filter-section">
                 <label for="statusFilter"><i class="fa fa-filter"></i> Status:</label>
                 <select id="statusFilter" onchange="filterAppointments()">
@@ -443,7 +447,8 @@
                     <option value="past">Past</option>
                 </select>
             </div>
-
+			
+			<!-- Appointments table -->
             <div id="appointmentsContainer" class="appointments-table-container" style="display: none;">
                 <table class="appointments-table">
                     <thead>
@@ -467,7 +472,7 @@
         </p>
     </div>
 
-    <!-- REFILL REQUESTS SECTION -->
+    <!-- Refill requests section -->
     <div class="refill-requests-section" id="refillRequestsSection" style="display: none;">
         <div class="section-title-wrapper">
             <h2 class="section-title">Prescription Refill Requests</h2>
@@ -477,7 +482,8 @@
             <i class="fa fa-spinner fa-spin"></i>
             <p>Loading refill requests...</p>
         </div>
-
+		
+		<!-- Refill requests table -->
 		<div class="refill-requests-table-wrapper">
 			<div class="refill-requests-table-container">
 				<table class="refill-requests-table" id="refillRequestsTable" style="display: none;">
@@ -502,6 +508,7 @@
     </div>
 </div>
 
+<!--FOOTER-->
 <footer>
     <div class="footer-left">
         <p><strong>Medicare</strong></p>
@@ -525,6 +532,8 @@
 <script>
 let allAppointments = [];
 
+
+// Authorization check of session and ensures only doctors can access page
 function checkAuth() {
     const session = hospitalDB.getSession();
     if (!session.userId || session.userType !== 'Doctor') {
@@ -536,7 +545,8 @@ function checkAuth() {
     document.getElementById('userNameDisplay').textContent = firstName;
     return session.userId;
 }
-
+	
+// Loads and displays all appointments for the logged-in doctor
 async function loadAppointments() {
     const doctorId = checkAuth();
     if (!doctorId) return;
@@ -584,6 +594,7 @@ async function loadAppointments() {
     }
 }
 
+// Displaying appointment details from indexeddb
 function displayAppointments(appointments) {
     const tbody = document.getElementById('appointmentsTableBody');
     tbody.innerHTML = '';
@@ -658,6 +669,7 @@ function displayAppointments(appointments) {
     document.getElementById('noAppointments').style.display = 'none';
 }
 
+// Load refill requests after appointments
 async function loadRefillRequests(doctorId) {
     console.log('=== LOADING REFILL REQUESTS ===');
     console.log('Doctor ID:', doctorId);
@@ -767,6 +779,7 @@ async function loadRefillRequests(doctorId) {
     }
 }
 
+// For approved prescription request
 async function approveRefill(refillId, originalTreatmentId) {
     if (!confirm('Approve this refill request and create a new active treatment?')) {
         return;
@@ -812,6 +825,7 @@ async function approveRefill(refillId, originalTreatmentId) {
     }
 }
 
+// For denied prescription request
 async function denyRefill(refillId) {
     const reason = prompt('Please provide a reason for denying this refill request:');
     
@@ -840,6 +854,7 @@ async function denyRefill(refillId) {
     }
 }
 
+// Filtering appointment depending on status and time
 function filterAppointments() {
     const statusFilter = document.getElementById('statusFilter').value;
     const dateFilter = document.getElementById('dateFilter').value;
@@ -868,6 +883,7 @@ function filterAppointments() {
     displayAppointments(filtered);
 }
 
+// Dropdown update
 function goPortal() {
     const type = sessionStorage.getItem('userType');
     if (type === 'Patient') window.location.href = '../patient/portal.html';
@@ -875,11 +891,13 @@ function goPortal() {
     if (type === 'Admin') window.location.href = '../admin/portal.html';
 }
 
+// Upon logout, session data is cleared and redirected to login page
 function logout() {
     hospitalDB.clearSession();
     window.location.replace('login.html');
 }
 
+// db check
 window.onload = async function() {
     console.log('Page loaded, initializing...');
     if (!hospitalDB.db) {
@@ -894,4 +912,5 @@ window.denyRefill = denyRefill;
 </script>
 
 </body>
+
 </html>
