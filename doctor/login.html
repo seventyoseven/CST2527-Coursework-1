@@ -5,6 +5,7 @@ Need to remove the sample credientials from below
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<!-- Page metadata and linked resources: sets charset, viewport, title, styles, and required JS libraries -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Login | Medicare</title>
@@ -15,7 +16,7 @@ Need to remove the sample credientials from below
 </head>
 <body>
 
-<!-- NAV BAR -->
+<!-- Nav bar with site logo, location selector and links to main HTML pages -->
 <nav class="navbar">
   <div class="nav-left">
     <a href="../main/index.html" class="logo-container">
@@ -47,6 +48,7 @@ Need to remove the sample credientials from below
   </ul>
  </nav>
 
+<!-- Login form container -->
 <div id="appContainer">
     <div id="loginPage" class="page active">
         <div class="login-container">
@@ -121,12 +123,12 @@ function sanitizeInput(input) {
     return sanitized;
 }
 
-//decrypt
+//decrypt stored password 
 function decryptData(encryptedPassword) {
     return hospitalDB.decryptData(encryptedPassword);
 }
 
-//login
+//login authentication
 async function handleLogin(event) {
     event.preventDefault();
 
@@ -225,7 +227,7 @@ function fillLoginForm(email, password) {
     document.getElementById("password").value = password;
 }
 
-//auto redirect if logged in
+//auto redirect if doctor is logged in
 window.onload = async function() {
     if (!hospitalDB.db) {
         await hospitalDB.init();
