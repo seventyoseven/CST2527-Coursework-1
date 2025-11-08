@@ -20,18 +20,18 @@ Built using HTML, CSS, and JavaScript, the app interacts with a securely configu
 
 4. To get the login information (full name, email address, plain text password decrypted), go into Inspect Element (F12) and navigate to the console bar. Depending on the type of role you're attempting to log into, the command will change:
 - ```hospitalDB.checkPasswords('patients')```
-- ```hospitalDB.checkPasswords('doctors')``` 
+- ```hospitalDB.checkPasswords('doctors')```  
 
-- Existing Doctor email: `vrilton0@discuz.net`
-- Existing Patient email: `lvasilik0@java.com`
-
+Existing Doctor email: `vrilton0@discuz.net`  
+Existing Patient email: `lvasilik0@java.com`  
+ 
 5. To get to the Admin's login page, navigate to index.html and scroll to the bottom. You will find: "Admin Portal" and the link should look like this:
 ```file:///C:/Users/[your user]/[your directory]/CST2527-Coursework-1-main/admin/login.html```
 
 6. Run this command to receive the login information for the admin:
 - ```hospitalDB.checkPasswords('admin')```
 
-- Existing Admin email: `skestian0@telegraph.co.uk`
+Existing Admin email: `skestian0@telegraph.co.uk`
 
 
 
