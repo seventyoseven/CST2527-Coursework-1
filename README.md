@@ -18,7 +18,7 @@ Built using HTML, CSS, and JavaScript, the app interacts with a securely configu
 
 3. Hover over the "login" dropdown option in the top right. You will see two options: "Patient Login" and "Doctor Login". Then, click either.
 
-4. Go into Inspect Element (F12) and navigate to the console bar. To get the login information, depending on the type of role you're attempting to log into, the command will change:
+4. To get the login information, go into Inspect Element (F12) and navigate to the console bar. Depending on the type of role you're attempting to log into, the command will change:
 ```hospitalDB.checkPasswords('patients')```
 ```hospitalDB.checkPasswords('doctors')``` 
 
