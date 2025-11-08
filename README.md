@@ -1,89 +1,50 @@
-#  Medical System Deployment Assessment
+# Medicare
 
-This project demonstrates the deployment and development of a **secure, GDPR-compliant medical web application** designed for a local doctor’s surgery.  
-It showcases skills in **web development, database integration, and cybersecurity hardening** following a simulated cyber-attack.
+This medical application allows:
+- Patients to register register and book appointments with specific doctors.
+- Doctors to record and manage patient notes, treatments, and prescribe medications.
+- Administrators for CRUD (GDPR compliance) to add, update, or delete patients.
 
----
+Built using HTML, CSS, and JavaScript, the app interacts with a securely configured database to manage and store medical data.
 
-##  Overview
 
-The application allows:  
-- **Patients** to register and **book appointments** with specific doctors.  
-- **Doctors** to **record and manage patient notes**, treatments, and prescribed medications.  
-- **Administrators** to ensure data security and GDPR compliance across all system components.  
 
-Built using **HTML, CSS, and JavaScript**, the app interacts with a **securely configured database** to manage and store medical data.
+## Instructions
 
----
+1. Download the CST2527-Coursework-1-main.zip file and extract its contents.
 
-##  Features
+2. Navigate to the "main" folder and open index.html. Your starting point should look like this URL:
+```file:///C:/Users/[your user]/[your directory]/CST2527-Coursework-1-main/main/index.html```
 
--  **Secure Database Deployment** – Configured to protect patient data.  
--  **Server-Side Integration** – Data fetched and stored dynamically in the application’s database.  
--  **Doctor Module** – Manage medical notes, treatments, and prescriptions.  
--  **Patient Booking System** – Book appointments with chosen doctors.  
--  **Cybersecurity Case Study** – Includes a detailed description of **server hardening after a cyber-attack**.  
--  **GDPR Compliance** – Focused on privacy, data protection, and user consent.
+3. Hover over the "login" dropdown option in the top right. You will see two options: "Patient Login" and "Doctor Login". Then, click either.
 
----
+4. Go into Inspect Element (F12) and navigate to the console bar. To get the login information, depending on the type of role you're attempting to log into, the command will change:
+```hospitalDB.checkPasswords('patients')```
+```hospitalDB.checkPasswords('doctors')``` 
 
-##  Tech Stack
+- Running the above commands will give you the role's full name, email address, and plain text password decrypted. 
+- Existing Doctor email: `vrilton0@discuz.net`
+- Existing Patient email: `lvasilik0@java.com`
 
-| Layer | Technologies |
-|-------|---------------|
-| Frontend | HTML, CSS, JavaScript |
-| Backend | Server-side scripting (custom implementation) |
-| Database | Securely configured relational DB |
-| Security | GDPR-compliant setup, encryption, and server hardening |
+5. To get to the Admin's login page, navigate to index.html and scroll to the bottom. You will find: "Admin Portal" and the link should look like this:
+```file:///C:/Users/[your user]/[your directory]/CST2527-Coursework-1-main/admin/login.html```
 
----
+6. Run this command to receive the login information for the admin: ```hospitalDB.checkPasswords('admin')```
 
-##  Project Structure
+- Existing Admin email: `skestian0@telegraph.co.uk`
 
-```
-📁 medical-system-deployment
-├── 📁 assets/           # Images, CSS, and JS files
-├── 📁 db/               # Database schema and config
-├── 📁 server/           # Server setup, scripts, and logs
-├── 📁 case-study/       # Documentation on server hardening
-├── README.md
-├── LICENSE (optional)
-└── index.html
-```
 
----
 
-## 🎥 Video Demonstration
+## References
 
-A 7-minute video walkthrough (recorded via **Zoom**) demonstrates:  
-- Application functionality  
-- System deployment process  
-- Security configurations  
-- How each criterion in the mark scheme is met  
+[Bogdantd. (2025, October 1). Sucuri Security – Auditing, malware scanner and security hardening. WordPress.org.](https://wordpress.org/plugins/sucuri-scanner/)
 
-*(Link or file to be included with submission)*
+[SentinelOne. (2025, October 7). What is Malware Detection? Importance & Techniques. SentinelOne.](https://www.sentinelone.com/cybersecurity-101/threat-intelligence/what-is-malware-detection/)
 
----
+[Containment - AWS Security Incident Response User Guide. (n.d.).](https://docs.aws.amazon.com/security-ir/latest/userguide/containment.html)
 
-##  Assessment Requirements
+[Flinders, M., & Smalley, I. (2025, October 9). Cyber Recovery. IBM.](https://www.ibm.com/think/topics/cyber-recovery#:~:text=Cyber%20recovery%20is%20a%20type,or%20destroy%20their%20sensitive%20data.)
 
-This submission includes:  
-- All **source code**, configuration files, and assets  
-- A **spoken video presentation** (max 7 minutes)  
-- Proper directory organization with README and documentation  
-- Final **ZIP archive** for submission  
+[W3Schools.com. (n.d.). Fontawesome Icons Webapp](https://www.w3schools.com/icons/fontawesome_icons_webapp.asp)
 
----
-
-##  GDPR and Security
-
-- All patient data handled in compliance with GDPR principles.  
-- Secure authentication and data encryption methods applied.  
-- Post-attack hardening analysis conducted and documented.
-
----
-
-## 📜 License
-
-This project is released under the **MIT License**, allowing reuse with attribution.  
-See the [LICENSE](./LICENSE) file for details.
+[GeeksforGeeks. (2025, July 23). JavaScript how to create dropdown list?](ascript/how-to-create-dropdown-list-using-javascript/)
